@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
       - name: Setup Git User
         if: '!contains(github.event.head_commit.message, env.CI_COMMIT_MESSAGE)'
         run: |
@@ -26,16 +30,10 @@ jobs:
           version=$(npm version patch -m 'ci(version-bump): patch %s 🎉')
           git push --tags
           git push origin main -f
-          echo "LATEST_TAG=$(version)" >> $GITHUB_ENV 
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          registry-url: 'https://registry.npmjs.org'
+          echo "LATEST_TAG=$(version)" >> $GITHUB_ENV
       - name: Set up .npmrc
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_REGISTRY }}" > ~/.npmrc
-      - run: npm i && npm run build
-      - run: npm publish --access public
+        run: |
+          git pull
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_REGISTRY }}" > ~/.npmrc
+          npm i && npm run build
+          npm publish --access public
