@@ -17,7 +17,7 @@ To get started with ConsoleAI, follow these steps:
 
 1. Install the `consoles-ai` package using npm:
    ```sh
-   npm install consoles-sai
+   npm install consoles-ai
    ```
 
 2. Import the `LLM` class from the `consoles-ai` package in your project:
