@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Command } from "commander";
 import { setupCommand } from "./cmd/setup.js";
 import { deployCommand } from "./cmd/deploy.js";
