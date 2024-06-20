@@ -9,14 +9,25 @@ import figlet from "figlet";
 import chalk from "chalk";
 
 export const setupCommand = async () => {
-  console.log(
-    chalk.hex("#800080")(
-      figlet.textSync("consoles.ai", {
-        font: "Larry 3D",
-        horizontalLayout: "fitted",
-      })
-    )
-  );
+  const text = figlet.textSync("consoles.ai", {
+    font: "Larry 3D",
+    horizontalLayout: "fitted",
+  });
+  
+  const lines = text.split('\n');
+  const gradientColors = ['#8A2BE2', '#9370DB', '#9932CC', '#8B008B', '#800080', '#4B0082'];
+
+  const coloredLines = lines.map((line, index) => {
+    const color = gradientColors[Math.floor(index / lines.length * gradientColors.length)];
+    return chalk.hex(color)(line);
+  });
+  
+  if (process.stdout.isTTY && process.stdout.getColorDepth() > 4) {
+    console.log(coloredLines.join('\n'));
+  } else {
+    console.log(text);
+  }
+
   log.info("Setting up ConsolesAI...");
 
   const homeDir = os.homedir();
