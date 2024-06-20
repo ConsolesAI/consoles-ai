@@ -6,7 +6,7 @@ import path from "path";
 import fs from "fs";
 import open from "open";
 import figlet from "figlet";
-import chalk from "chalk"; // Add this line
+import chalk from "chalk";
 
 export const setupCommand = async () => {
   console.log(
@@ -45,7 +45,6 @@ export const setupCommand = async () => {
       token = generateToken();
       log.info("Generated unique token: 🔑 " + chalk.cyan(token));
       log.info("Press any key to login");
-
       await waitForKeyPress();
       await open(`https://consoles.ai/login?token=${token}`);
       log.info("Please complete the process in your browser. 🌍");
