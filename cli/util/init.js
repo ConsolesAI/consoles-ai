@@ -3,6 +3,7 @@ import path from "path";
 import { log } from "./log.js";
 import chalk from "chalk";
 import readline from "readline";
+import figlet from "figlet";
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -10,20 +11,43 @@ const rl = readline.createInterface({
 });
 
 export const initProject = async () => {
+  const text = figlet.textSync("consoles.ai", {
+    font: "Larry 3D",
+    horizontalLayout: "fitted",
+  });
+  
+  const lines = text.split('\n');
+  const gradientColors = ['#8A2BE2', '#9370DB', '#9932CC', '#8B008B', '#800080', '#4B0082'];
+
+  
+  const isDarkMode = process.env.NODE_ENV === 'production'; // You can adjust this condition based on your needs
+
+  
+  const coloredLines = lines.map((line, index) => {
+    const color = gradientColors[Math.floor(index / lines.length * gradientColors.length)];
+    return chalk.hex(color)(line);
+  });
+  
+  if (process.stdout.isTTY && process.stdout.getColorDepth() > 4) {
+    console.log(coloredLines.join('\n'));
+  } else {
+    console.log(text);
+  }
+
   const projectName = await new Promise((resolve) => {
-    rl.question(chalk.blue("Enter the project name: "), (answer) => {
+    rl.question(chalk.green("Enter the project name: "), (answer) => {
       resolve(answer);
     });
   });
 
-  log.info(`├── 🚀 Initializing your project: ${chalk.cyan(projectName)}`);
+  log.info(`🚀 Initializing your project: ${chalk.cyan.bold(projectName)}`);
 
   const projectDir = path.join(process.cwd(), projectName);
 
   if (fs.existsSync(projectDir)) {
     throw new Error(
       chalk.yellow.italic(
-        `   The project directory '${chalk.cyan(projectDir)}' already exists!\n`
+        `   The project directory '${chalk.cyan.bold(projectDir)}' already exists!\n`
       )
     );
   }
@@ -100,10 +124,11 @@ export default app;
 
   fs.writeFileSync(path.join(srcDir, "console.ts"), consoleContent);
 
-  log.info("├── 📦 Installing dependencies...");
+  log.info(chalk.blue.bold("📦 Installing dependencies..."));
   const { execSync } = await import("child_process");
   execSync("npm install", { cwd: projectDir, stdio: "inherit" });
 
-  log.info("├── 🎉 Project initialized successfully!");
+  log.info(chalk.green.bold("🎉 Project initialized successfully!"));
   rl.close();
 };
+
