@@ -3,10 +3,10 @@ import type {
   llmProviders,
   ProviderModelNames,
   Prompt,
-} from "./types/types.d.ts";
+} from "./types/types.js";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { z } from "zod";
-import { sanitizeToJson } from './helpers';
+import { sanitizeToJson } from './helpers.js';
 
 
 interface OpenAIResponse {
@@ -27,6 +27,7 @@ class LLM {
   provider: llmProviders | "";
   model: string;
   defaultOptions: LLMOptions;
+  tools: any; // Add tools field
 
   constructor(
     name: string,
@@ -39,6 +40,7 @@ class LLM {
     this.provider = "";
     this.model = "";
     this.defaultOptions = defaultOptions;
+    this.tools = [];
   }
 
   config<T extends llmProviders>(
@@ -46,6 +48,7 @@ class LLM {
       provider: T;
       model: ProviderModelNames<T>;
       key?: string;
+      tools?: any;
     }
   ): void {
     try {
@@ -59,6 +62,7 @@ class LLM {
       this.provider = options.provider;
       this.model = options.model;
       this.defaultOptions = { ...this.defaultOptions, ...options };
+      this.tools = options.tools || [];
     } catch (error) {
       console.error("Error in config method:", error);
       throw error;
@@ -188,6 +192,7 @@ class LLM {
         "claude-3-sonnet": "claude-3-sonnet-20240229",
         "claude-3-haiku": "claude-3-haiku-20240307",
         "claude-3-opus": "claude-3-opus-20240229",
+        "claude-3-5-sonnet": "claude-3-5-sonnet-20240620"
       };
 
       if (modelAliases[this.model as keyof typeof modelAliases]) {
@@ -203,7 +208,7 @@ class LLM {
         } as HeadersInit,
         body: JSON.stringify({
           model: this.model,
-          system: systemMsg || "You are a helpful assistant.",
+          system: systemMsg ? `<system>${systemMsg}</system>` : "<system>You are a helpful assistant.</system>",
           max_tokens: options.maxTokens,
           temperature: options.temperature,
           top_p: options.topP || 1,
@@ -273,10 +278,12 @@ class LLM {
       user: string;
       messages?: any[];
       schema?: z.ZodType<any, any, any>;
+      tools?: any;
     },
     options: LLMOptions<T> & {
       provider?: T;
       model?: ProviderModelNames<T>;
+      tools?: any;
     } = {} // Add a default value of an empty object
   ) {
     try {
@@ -309,6 +316,10 @@ class LLM {
       messages.push({ role: "user", content: prompt.user });
       let enforcedJsonOptions: LLMOptions;
       let directions: string;
+
+      if(prompt.tools){
+        this.tools = prompt.tools;
+      }
 
       if (prompt.schema) {
         const schema = zodToJsonSchema(prompt.schema, { target: "openApi3" });
