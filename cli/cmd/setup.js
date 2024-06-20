@@ -5,10 +5,18 @@ import os from "os";
 import path from "path";
 import fs from "fs";
 import open from "open";
+import figlet from "figlet";
 import chalk from "chalk"; // Add this line
 
 export const setupCommand = async () => {
-  displayFiglet("Consoles.ai");
+  console.log(
+    chalk.hex("#800080")(
+      figlet.textSync("consoles.ai", {
+        font: "Larry 3D",
+        horizontalLayout: "fitted",
+      })
+    )
+  );
   log.info("Setting up ConsolesAI...");
 
   const homeDir = os.homedir();
