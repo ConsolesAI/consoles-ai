@@ -134,8 +134,6 @@ export const deployProject = async () => {
 
     // Actually deploy to  WfP API
     
-
-
     const response = {
       data: {
         id: crypto.randomBytes(3).toString("hex"),

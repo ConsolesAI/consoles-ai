@@ -40,7 +40,14 @@ export const initProject = async () => {
     });
   });
 
+  const projectDescription = await new Promise((resolve) => {
+    rl.question(chalk.green("Enter brief description: "), (answer) => {
+      resolve(answer);
+    });
+  });
+
   log.info(`🚀 Initializing your project: ${chalk.cyan.bold(projectName)}`);
+  log.info(`📝 Project description: ${chalk.cyan(projectDescription)}`);
 
   const projectDir = path.join(process.cwd(), projectName);
 
@@ -78,6 +85,7 @@ export const initProject = async () => {
     "name": "${projectName}",
     "version": "0.0.1",
     "private": true,
+    "description": "${projectDescription}",
     "scripts": {
       "deploy": "consoles-ai deploy"
     },
