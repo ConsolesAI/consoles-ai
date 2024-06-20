@@ -1,8 +1,10 @@
 export class KV {
   private storage: Record<string, string>;
+  private name: string;
 
-  constructor() {
+  constructor(name: string) {
     this.storage = {};
+    this.name = name;
   }
 
   async new(space: string, apiKey?: string) {
@@ -24,8 +26,6 @@ export class KV {
     const data = await response.json();
     return data;
   }
-
-
 
   async get(key: string, space: string): Promise<string | null> {
     return this.storage[key] || null;

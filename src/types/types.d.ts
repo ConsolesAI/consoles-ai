@@ -1,5 +1,6 @@
 import { Hono, Context, Env } from 'hono';
 import { ProviderModels } from './ProviderModels';
+import { extendedContext } from './extendedContext';
 
 export interface Prompt {
   system: string;
@@ -11,6 +12,271 @@ export interface Prompt {
 
 export type llmProviders = keyof typeof ProviderModels;
 export type ProviderModelNames<T extends llmProviders> = (typeof ProviderModels)[T][number];
+
+
+declare module 'hono' {
+  interface Context {
+    /**
+     * The country associated with the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/hello', (c) => {
+     *   const country = c.country;
+     *   if (country === 'US') {
+     *     return c.text('Hello from the United States!');
+     *   } else {
+     *     return c.text('Hello from somewhere else!');
+     *   }
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    country?: string;
+
+    /**
+     * The ASN (Autonomous System Number) associated with the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const asn = c.asn;
+     *   return c.text(`ASN: ${asn}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    asn?: string;
+
+    /**
+     * The organization associated with the ASN.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const organization = c.organization;
+     *   return c.text(`Organization: ${organization}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    organization?: string;
+
+    /**
+     * The HTTP protocol used for the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const httpProtocol = c.httpProtocol;
+     *   return c.text(`HTTP Protocol: ${httpProtocol}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    httpProtocol?: string;
+
+    /**
+     * The TLS cipher used for the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const tlsCipher = c.tlsCipher;
+     *   return c.text(`TLS Cipher: ${tlsCipher}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    tlsCipher?: string;
+
+    /**
+     * The TLS version used for the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const tlsVersion = c.tlsVersion;
+     *   return c.text(`TLS Version: ${tlsVersion}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    tlsVersion?: string;
+
+    /**
+     * The city associated with the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const city = c.city;
+     *   return c.text(`City: ${city}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    city?: string;
+
+    /**
+     * The continent associated with the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const continent = c.continent;
+     *   return c.text(`Continent: ${continent}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    continent?: string;
+
+    /**
+     * The latitude associated with the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const latitude = c.latitude;
+     *   return c.text(`Latitude: ${latitude}`);
+     * });
+     * ```
+     * 
+     * @type {number | undefined}
+     */
+    latitude?: number;
+
+    /**
+     * The longitude associated with the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const longitude = c.longitude;
+     *   return c.text(`Longitude: ${longitude}`);
+     * });
+     * ```
+     * 
+     * @type {number | undefined}
+     */
+    longitude?: number;
+
+    /**
+     * The postal code associated with the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const postalCode = c.postalCode;
+     *   return c.text(`Postal Code: ${postalCode}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    postalCode?: string;
+
+    /**
+     * The metro code associated with the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const metroCode = c.metroCode;
+     *   return c.text(`Metro Code: ${metroCode}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    metroCode?: string;
+
+    /**
+     * The timezone associated with the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const timezone = c.timezone;
+     *   return c.text(`Timezone: ${timezone}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    timezone?: string;
+
+    /**
+     * Alias for region as state.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const state = c.state;
+     *   return c.text(`State: ${state}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    state?: string;
+
+    /**
+     * Alias for datacenter as colo.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const datacenter = c.datacenter;
+     *   return c.text(`Datacenter: ${datacenter}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    datacenter?: string;
+
+    /**
+     * Alias for regionCode as stateCode.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const stateCode = c.stateCode;
+     *   return c.text(`State Code: ${stateCode}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    stateCode?: string;
+
+    /**
+     * The IP address associated with the request.
+     * 
+     * @example
+     * ```typescript
+     * app.get('/info', (c) => {
+     *   const ip = c.ip;
+     *   return c.text(`IP Address: ${ip}`);
+     * });
+     * ```
+     * 
+     * @type {string | undefined}
+     */
+    ip?: string;
+  }
+}
+
 
 export interface LLMOptions<T extends llmProviders = llmProviders> {
   keys?: {
