@@ -20,7 +20,12 @@ export const extractMatches = (regex, content, type) => {
   return matches;
 };
 
-export const deployProject = async (entryScript) => {
+export const deployProject = async () => {
+  const projectRoot = process.cwd();
+  const srcDir = path.join(projectRoot, 'src');
+  const entryScript = path.join(srcDir, 'console.ts');
+
+
   log.info("├── 🔨 Building your project...");
 
   if (!fs.existsSync(entryScript)) {
@@ -63,7 +68,7 @@ export const deployProject = async (entryScript) => {
     );
   }
   const projectName = projectNameMatch[1];
-  const bundleDir = path.join(path.dirname(entryScript), "built");
+  const bundleDir = path.join(projectRoot, "built");
   const bundlePath = path.join(bundleDir, `${projectName}_bundle.mjs`);
 
   if (!fs.existsSync(bundleDir)) {
@@ -98,7 +103,6 @@ export const deployProject = async (entryScript) => {
   fs.writeFileSync(entryScript, modifiedFileContent, "utf8");
 
   try {
-    const scriptDir = path.dirname(entryScript);
     await esbuild.build({
       entryPoints: [entryScript],
       bundle: true,
@@ -110,7 +114,7 @@ export const deployProject = async (entryScript) => {
       format: "esm",
       target: ["node14"],
       loader: { ".ts": "ts" },
-      tsconfig: path.join(path.dirname(scriptDir), "tsconfig.json"),
+      tsconfig: path.join(projectRoot, "tsconfig.json"),
     });
     log.info("├── 📦 Building completed.");
     const bundleContent = fs.readFileSync(bundlePath, "utf8");
@@ -127,6 +131,11 @@ export const deployProject = async (entryScript) => {
     );
 
     log.info("├── ✨ Deploying to cloud...");
+
+    // Actually deploy to  WfP API
+    
+
+
     const response = {
       data: {
         id: crypto.randomBytes(3).toString("hex"),
@@ -138,10 +147,19 @@ export const deployProject = async (entryScript) => {
       },
     };
     log.info("├── 🌍 Deployment completed.");
+    // Cleanup
+    log.info("├── 🧹 Cleaning up build files...");
+    fs.rmSync(bundleDir, { recursive: true, force: true });
+    log.info("├── 🗑️ Cleanup completed.");
+
 
     return response.data;
   } catch (error) {
     log.error("❌ Error during deployment: " + error.message);
+    // Cleanup even if there's an error
+    if (fs.existsSync(bundleDir)) {
+      fs.rmSync(bundleDir, { recursive: true, force: true });
+    }
     throw error;
   }
 };
