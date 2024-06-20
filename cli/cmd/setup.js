@@ -43,7 +43,7 @@ export const setupCommand = async () => {
       }
     } else {
       log.warn(".consoles.env file not found. Creating a new one.");
-      token = generateToken();
+      token = await generateToken();
       log.info("Generated unique token: 🔑 " + chalk.cyan(token));
       await saveEnvFile(envPath, { TOKEN: token }); // Assuming saveEnvFile is async
       log.info("Press Enter to login");
@@ -55,7 +55,7 @@ export const setupCommand = async () => {
 
     if (apiKey) {
       log.success("ConsolesAI setup completed. ✅");
-      log.info("Use 'consoles init' to start your first project or use 'consoles run <script.name>'");
+      log.info("Use 'consoles-ai init' to start your first project or use 'consoles run <script.name>'");
     
     }
   } catch (error) {
