@@ -187,6 +187,7 @@ class LLM {
       const modelAliases = {
         "claude-3-sonnet": "claude-3-sonnet-20240229",
         "claude-3-haiku": "claude-3-haiku-20240307",
+        "claude-3-opus": "claude-3-opus-20240229",
       };
 
       if (modelAliases[this.model as keyof typeof modelAliases]) {
