@@ -1,5 +1,5 @@
 import { Hono, Context, Env } from "hono";
-import { upgradeWebSocket } from 'hono/cloudflare-workers';
+import { upgradeWebSocket } from "hono/cloudflare-workers";
 import { prettyJSON } from "hono/pretty-json";
 import { etag } from "hono/etag";
 import { poweredBy } from "hono/powered-by";
@@ -8,68 +8,82 @@ import { VM } from "./vm";
 import { KV } from "./kv";
 import { LLMOptions } from "./types/types";
 
-
 function addShortcuts() {
   const properties = [
-    'country', 'asn', 'asOrganization', 'colo', 'httpProtocol', 'tlsCipher', 
-    'tlsVersion', 'city', 'continent', 'latitude', 'longitude', 'postalCode', 
-    'metroCode', 'region', 'regionCode', 'timezone'
+    "country",
+    "asn",
+    "asOrganization",
+    "colo",
+    "httpProtocol",
+    "tlsCipher",
+    "tlsVersion",
+    "city",
+    "continent",
+    "latitude",
+    "longitude",
+    "postalCode",
+    "metroCode",
+    "region",
+    "regionCode",
+    "timezone",
   ];
 
   return async (c: any, next: () => Promise<void>) => {
     const cf = c.req.raw.cf || {};
-    properties.forEach(prop => {
+    properties.forEach((prop) => {
       Object.defineProperty(c, prop, {
         get: () => cf[prop],
-        configurable: true
+        configurable: true,
       });
     });
     // Alias for organization as asOrganization
-    Object.defineProperty(c, 'asOrganization', {
-      get: () => cf['organization'],
-      configurable: true
+    Object.defineProperty(c, "asOrganization", {
+      get: () => cf["organization"],
+      configurable: true,
     });
     // Alias for region as state
-    Object.defineProperty(c, 'state', {
-      get: () => cf['region'],
-      configurable: true
+    Object.defineProperty(c, "state", {
+      get: () => cf["region"],
+      configurable: true,
     });
     // Alias for datacenter as colo
-    Object.defineProperty(c, 'datacenter', {
-      get: () => cf['colo'],
-      configurable: true
+    Object.defineProperty(c, "datacenter", {
+      get: () => cf["colo"],
+      configurable: true,
     });
     // Alias for regionCode as stateCode
-    Object.defineProperty(c, 'stateCode', {
-      get: () => cf['regionCode'],
-      configurable: true
+    Object.defineProperty(c, "stateCode", {
+      get: () => cf["regionCode"],
+      configurable: true,
     });
     // Set IP address from CF-Connecting-IP header
-    c.ip = c.req.header('CF-Connecting-IP');
+    c.ip = c.req.header("CF-Connecting-IP");
     await next();
   };
 }
 
-
-
 export class Console extends Hono<Env> {
-  constructor(name: string) {
+  private currentContext: Context | null = null;
+  private name: string; // Add this line
+  private apiKey?: string; // Add this line
+
+  constructor(name: string, apiKey?: string) {
     super();
+    this.apiKey = apiKey;
+    this.name = name;
     this.use(poweredBy());
     this.use("/etag/*", etag());
     this.use(prettyJSON());
     this.use(addShortcuts()); // Use the middleware
 
-
     this.use(async (c: Context, next: () => Promise<void>) => {
+      this.currentContext = c; // Store the current context
       const start = Date.now();
       await next();
       const ms = Date.now() - start;
       c.header("X-Response-Time", `${ms}ms`);
     });
 
-
-    
     this.notFound((c: Context) => {
       const path = c.req.url;
       return c.html(
@@ -138,18 +152,29 @@ export class Console extends Hono<Env> {
     </section>
     `;
   }
+ // Method to get the current context
+ getCurrentContext(): Context | null {
+  return this.currentContext;
+}
 
   llm(name: string, defaultOptions: LLMOptions = {}): LLM {
     return new LLM(name, defaultOptions);
   }
 
-  kv(name: string): KV {
-    return new KV(name);
+  kv(namespace: string) {
+    const getContext = () => {
+      const c = this.getCurrentContext();
+      if (!c) {
+        throw new Error('No context available');
+      }
+      return c;
+    };
+    return new KV(getContext, namespace, this.apiKey!);
   }
 
   // Method to create a VM
-  VM(name: string) {
+  vm(name: string): VM {
     return new VM(name);
   }
+ 
 }
-
