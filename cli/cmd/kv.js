@@ -6,12 +6,6 @@ import path from "path";
 import fs from "fs";
 import { readEnvFile } from "../util/file.js";
 
-const envPath = path.join(os.homedir(), ".consoles.env");
-const apiKey = fs.existsSync(envPath) ? readEnvFile(envPath).API_KEY : null;
-
-if (!apiKey)
-    throw new Error("API key not found. Please run the setup command.");
-
 const displayFiglet = () => {
     console.log(
         chalk.hex("#800080")(
@@ -33,6 +27,11 @@ const handleResponse = async (response, successMsg, errorMsg) => {
 
 export const kvCommand = async (action, namespace, key, value) => {
     displayFiglet();
+    const envPath = path.join(os.homedir(), ".consoles.env");
+    const apiKey = fs.existsSync(envPath) ? readEnvFile(envPath).API_KEY : null;
+    
+    if (!apiKey)
+        throw new Error("API key not found. Please run the setup command.");
 
     if (!action) {
         log.info("Available KV commands:");
