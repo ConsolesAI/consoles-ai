@@ -137,6 +137,6 @@ export default app;
   execSync("npm install", { cwd: projectDir, stdio: "inherit" });
 
   log.info(chalk.green.bold("🎉 Project initialized successfully!"));
-  rl.close();
-};
+   rl.close();
 
+};
