@@ -8,12 +8,58 @@ import { VM } from "./vm";
 import { KV } from "./kv";
 import { LLMOptions } from "./types/types";
 
-export class Console extends Hono<Env>{
+
+function addShortcuts() {
+  const properties = [
+    'country', 'asn', 'asOrganization', 'colo', 'httpProtocol', 'tlsCipher', 
+    'tlsVersion', 'city', 'continent', 'latitude', 'longitude', 'postalCode', 
+    'metroCode', 'region', 'regionCode', 'timezone'
+  ];
+
+  return async (c: any, next: () => Promise<void>) => {
+    const cf = c.req.raw.cf || {};
+    properties.forEach(prop => {
+      Object.defineProperty(c, prop, {
+        get: () => cf[prop],
+        configurable: true
+      });
+    });
+    // Alias for organization as asOrganization
+    Object.defineProperty(c, 'asOrganization', {
+      get: () => cf['organization'],
+      configurable: true
+    });
+    // Alias for region as state
+    Object.defineProperty(c, 'state', {
+      get: () => cf['region'],
+      configurable: true
+    });
+    // Alias for datacenter as colo
+    Object.defineProperty(c, 'datacenter', {
+      get: () => cf['colo'],
+      configurable: true
+    });
+    // Alias for regionCode as stateCode
+    Object.defineProperty(c, 'stateCode', {
+      get: () => cf['regionCode'],
+      configurable: true
+    });
+    // Set IP address from CF-Connecting-IP header
+    c.ip = c.req.header('CF-Connecting-IP');
+    await next();
+  };
+}
+
+
+
+export class Console extends Hono<Env> {
   constructor(name: string) {
     super();
     this.use(poweredBy());
     this.use("/etag/*", etag());
     this.use(prettyJSON());
+    this.use(addShortcuts()); // Use the middleware
+
 
     this.use(async (c: Context, next: () => Promise<void>) => {
       const start = Date.now();
@@ -22,6 +68,8 @@ export class Console extends Hono<Env>{
       c.header("X-Response-Time", `${ms}ms`);
     });
 
+
+    
     this.notFound((c: Context) => {
       const path = c.req.url;
       return c.html(
@@ -95,11 +143,13 @@ export class Console extends Hono<Env>{
     return new LLM(name, defaultOptions);
   }
 
-  kv() {
-    return new KV();
+  kv(name: string): KV {
+    return new KV(name);
   }
+
   // Method to create a VM
   VM(name: string) {
     return new VM(name);
   }
 }
+
