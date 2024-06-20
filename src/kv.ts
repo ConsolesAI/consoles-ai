@@ -1,41 +1,53 @@
+import { Context } from "hono";
+
 export class KV {
-  private storage: Record<string, string>;
-  private name: string;
+  private getContext: () => Context;
+  private prefix: string;
+  private apiKey: string;
 
-  constructor(name: string) {
-    this.storage = {};
-    this.name = name;
+  constructor(getContext: () => Context, prefix: string, apiKey: string) {
+    this.getContext = getContext;
+    this.prefix = prefix;
+    this.apiKey = apiKey;
   }
 
-  async new(space: string, apiKey?: string) {
-    if (!apiKey) {
-      return 'API key is missing. Please provide a ConsolesAI API key.';
+  private getPrefixedKey(key: string): string {
+    return `${this.prefix}:${key}`;
+  }
+
+  async create(space: string) {
+    try {
+      const response = await fetch(`https://api.consoles.ai/v1/kv/${space}`, {
+        headers: { Authorization: `Bearer ${this.apiKey}` },
+      });
+
+      if (response.ok && (await response.json()) === false) {
+        await fetch(`https://api.consoles.ai/v1/kv/new/${space}`, {
+          headers: { Authorization: `Bearer ${this.apiKey}` },
+        });
+      }
+    } catch (error) {
+      console.error("Error checking space existence:", error);
     }
-    const response = await fetch('https://api.consoles.ai/kv/new', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({ space })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to create new KV Space: ${response.statusText}`);
-    }
-    const data = await response.json();
-    return data;
   }
 
-  async get(key: string, space: string): Promise<string | null> {
-    return this.storage[key] || null;
+  get(key: string) {
+    const c = this.getContext();
+    return c.env.kv.get(this.getPrefixedKey(key));
   }
 
-  async put(key: string, value: string): Promise<void> {
-    this.storage[key] = value;
+  list(options: { prefix: string }) {
+    const c = this.getContext();
+    return c.env.kv.list({ prefix: this.getPrefixedKey(options.prefix) });
   }
 
-  async delete(key: string): Promise<void> {
-    delete this.storage[key];
+  put(key: string, value: string) {
+    const c = this.getContext();
+    return c.env.AI.put(this.getPrefixedKey(key), value);
+  }
+
+  add(key: string, value: string) {
+    const c = this.getContext();
+    return c.env.kv.put(this.getPrefixedKey(key), value);
   }
 }
