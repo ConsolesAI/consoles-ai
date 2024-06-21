@@ -4,8 +4,31 @@ import fs from "fs";
 import chalk from "chalk";
 import { log } from "../util/log.js";
 import { displayFiglet, readEnvFile } from "../util/file.js";
+import figlet from "figlet";
+
+const displayConsolesAiFiglet = () => {
+    const text = figlet.textSync("consoles.ai", {
+        font: "Larry 3D",
+        horizontalLayout: "fitted",
+    });
+
+    const lines = text.split('\n');
+    const gradientColors = ['#8A2BE2', '#9370DB', '#9932CC', '#8B008B', '#800080', '#4B0082', '#6A5ACD', '#483D8B', '#7B68EE', '#9400D3', '#8B008B', '#9932CC'];
+
+    const coloredLines = lines.map((line, index) => {
+        const color = gradientColors[Math.floor(index / lines.length * gradientColors.length)];
+        return chalk.hex(color)(line);
+    });
+
+    if (process.stdout.isTTY && process.stdout.getColorDepth() > 4) {
+        console.log(coloredLines.join('\n'));
+    } else {
+        console.log(text);
+    }
+};
 
 export const secretsCommand = async (action, namespace, key, value) => {
+    displayConsolesAiFiglet();
 
     if (!action) {
         log.info("Available Secrets commands:");
