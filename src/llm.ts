@@ -2,7 +2,7 @@ import type {
   LLMOptions,
   llmProviders,
   ProviderModelNames,
-} from "./types/index.js";
+} from './types.js';
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { z } from "zod";
 import { sanitizeToJson } from './helpers.js';
@@ -26,19 +26,17 @@ class LLM {
   provider: llmProviders | "";
   model: string;
   defaultOptions: LLMOptions;
-  tools: any; // Add tools field
+  tools: any;
 
-  constructor(
-    name: string,
-    defaultOptions: LLMOptions<llmProviders> = {
-      maxTokens: 100,
-      temperature: 0.5,
-    }
-  ) {
+  constructor(name: string, defaultOptions: Partial<LLMOptions> = {}) {
     this.name = name;
     this.provider = "";
     this.model = "";
-    this.defaultOptions = defaultOptions;
+    this.defaultOptions = {
+      maxTokens: 100,
+      temperature: 0.5,
+      ...defaultOptions,
+    };
     this.tools = [];
   }
 
