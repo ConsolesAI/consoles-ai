@@ -82,13 +82,15 @@ export const deployProject = async () => {
       chalk.red(`   The .consoles.env file does not exist at ${chalk.cyan(envPath)}!\n`)
     );
   }
-  const envVars = readEnvFile(envPath);
-  const apiKey = envVars.API_KEY;
-  if (!apiKey) {
-    throw new Error(
-      chalk.red(`   The API_KEY is not defined in the .consoles.env file!\n`)
-    );
-  }
+  
+// Use the readEnvFile function from file.js
+const envVars = await readEnvFile(envPath);
+const apiKey = envVars.API_KEY;
+if (!apiKey) {
+  throw new Error(
+    chalk.red(`   The API_KEY is not defined in the .consoles.env file!\n`)
+  );
+}
 
   let modifiedFileContent = fileContent;
 
