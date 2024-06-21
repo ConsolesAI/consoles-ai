@@ -17,12 +17,8 @@ export const initProject = async () => {
   });
   
   const lines = text.split('\n');
-  const gradientColors = ['#8A2BE2', '#9370DB', '#9932CC', '#8B008B', '#800080', '#4B0082'];
+  const gradientColors = ['#8A2BE2', '#9370DB', '#9932CC', '#8B008B', '#800080', '#4B0082', '#6A5ACD', '#483D8B', '#7B68EE', '#9400D3', '#8B008B', '#9932CC'];
 
-  
-  const isDarkMode = process.env.NODE_ENV === 'production'; // You can adjust this condition based on your needs
-
-  
   const coloredLines = lines.map((line, index) => {
     const color = gradientColors[Math.floor(index / lines.length * gradientColors.length)];
     return chalk.hex(color)(line);
