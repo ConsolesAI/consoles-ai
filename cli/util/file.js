@@ -55,8 +55,8 @@ export const waitForKeyPress = async () => {
   });
 };
 
-export const saveEnvFile = async (envPath, envData) => {
-  const data = `TOKEN=${envData.TOKEN}\nAPI_KEY=${envData.API_KEY}\n`;
+export const saveEnvFile = async (envPath, token, apiKey) => {
+  const data = `TOKEN=${token}\nAPI_KEY=${apiKey}\n`;
   await fs.promises.writeFile(envPath, data);
   log.success("API key and token saved to 📁 " + chalk.cyan(envPath));
 };
