@@ -110,7 +110,7 @@ if (!apiKey) {
       bundle: true,
       outfile: bundlePath,
       platform: "browser",
-      external: [],
+      external: [], // Ensure no modules are treated as external
       minify: false,
       sourcemap: false,
       format: "cjs",
@@ -120,7 +120,13 @@ if (!apiKey) {
     });
     log.info("├── 📦 Building completed.");
     const bundleContent = fs.readFileSync(bundlePath, "utf8");
-
+  
+    // Remove node_modules folder from the built directory if it exists
+    const nodeModulesPath = path.join(bundleDir, "node_modules");
+    if (fs.existsSync(nodeModulesPath)) {
+      fs.rmSync(nodeModulesPath, { recursive: true, force: true });
+    }
+  
 
     const endpoints = extractMatches(
       /app\.(get|post|put|delete|patch)\(['"`](.*?)['"`]/g,

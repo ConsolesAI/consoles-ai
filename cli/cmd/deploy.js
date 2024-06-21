@@ -68,6 +68,7 @@ export const deployCommand = async (entryScript = "console.ts") => {
     }
 
     log.success("\nConsole successfully deployed! 🎉✨\n");
+    process.exit(0);
   } catch (error) {
     log.error("\n ❌ DEPLOYMENT FAILED...\n" + error.message);
   }
