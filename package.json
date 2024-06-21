@@ -1,7 +1,7 @@
 {
   "name": "consoles-ai",
-  "version": "0.0.67",
-  "description": "ConsolesAI SDK & CLI tool",
+  "version": "0.0.62",
+  "description": "ConsolesAI SDK and CLI tool",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
   "types": "dist/types/index.d.ts",
@@ -9,8 +9,8 @@
     "consoles-ai": "cli/index.js"
   },
   "scripts": {
-    "build": "rimraf dist && tsc --noEmit --skipLibCheck --rootDir ./src && tsc --build tsconfig.build.json --force && mkdir -p dist/cjs && cp ./package.cjs.json ./dist/cjs/package.json",
-    "build:watch": "rimraf dist && tsc --noEmit --skipLibCheck --rootDir ./src && tsc --build tsconfig.build.json --watch --force && mkdir -p dist/cjs && cp ./package.cjs.json ./dist/cjs/package.json"
+    "build": "rimraf dist && tsc --project tsconfig.build.json && mkdir -p dist/cjs && cp ./package.cjs.json ./dist/cjs/package.json",
+    "build:watch": "rimraf dist && tsc --watch --project tsconfig.build.json"
   },
   "repository": {
     "type": "git",

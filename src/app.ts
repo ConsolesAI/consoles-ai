@@ -6,7 +6,7 @@ import { poweredBy } from "hono/powered-by";
 import { LLM } from "./llm";
 import { VM } from "./vm";
 import { KV } from "./kv";
-import { LLMOptions, llmProviders } from "./types/types";
+import type { LLMOptions, llmProviders } from "./types/index.d.ts"; // Ensure correct import
 
 
 function addShortcuts() {

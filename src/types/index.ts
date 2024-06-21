@@ -1,5 +1,6 @@
-import { Hono, Context, Env } from 'hono';
+// import { Hono, Context, Env } from 'hono';
 import { ProviderModels } from './ProviderModels';
+import { z } from 'zod';
 
 export interface Prompt {
   system: string;
@@ -277,6 +278,7 @@ declare module 'hono' {
 }
 
 
+
 export interface LLMOptions<T extends llmProviders = llmProviders> {
   keys?: {
     openai?: string;
@@ -320,7 +322,8 @@ declare module 'consoles-ai' {
      * @returns Returns a new `LLM` object, which represents the initialized language model. This object provides methods to configure and interact with the model.
      */
     
-    llm(name: string, defaultOptions?: LLMOptions<llmProviders>): LLM;
+   // llm(name: string, defaultOptions?: LLMOptions<llmProviders>): LLM;
+
   
   }
 
@@ -365,7 +368,21 @@ declare module 'consoles-ai' {
    * @param options Optional configuration options for the request.
    * @returns A promise that resolves with the response from the LLM.
    */
-    chat(prompt: any, options?: LLMOptions): Promise<any>;
-  }
+  chat<T extends llmProviders>(
+    prompt: {
+      system: string;
+      user: string;
+      messages?: any[];
+      schema?: z.ZodType<any, any, any>;
+      tools?: any;
+    },
+    options?: LLMOptions<T> & {
+      provider?: T;
+      model?: ProviderModelNames<T>;
+      tools?: any;
+    }
+  ): Promise<any>;
+}
 
 }
+export {};
