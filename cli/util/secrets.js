@@ -6,7 +6,6 @@ import { log } from "../util/log.js";
 import { displayFiglet, readEnvFile } from "../util/file.js";
 
 export const secretsCommand = async (action, namespace, key, value) => {
-    displayFiglet();
 
     if (!action) {
         log.info("Available Secrets commands:");

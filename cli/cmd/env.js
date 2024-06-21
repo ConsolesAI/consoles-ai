@@ -14,7 +14,6 @@ const handleResponse = async (response, successMsg, errorMsg) => {
 };
 
 export const secretsCommand = async (action, namespace, key, value) => {
-    displayFiglet();
 
     if (!action) {
         log.info("Available Secret Space commands:");
