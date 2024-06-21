@@ -4,7 +4,7 @@
   "description": "ConsolesAI SDK and CLI tool",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
-  "types": "dist/types/index.d.ts",
+  "types": "dist/types.js",
   "bin": {
     "consoles-ai": "cli/index.js"
   },
