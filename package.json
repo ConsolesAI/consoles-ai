@@ -2,8 +2,8 @@
   "name": "consoles-ai",
   "version": "0.0.50",
   "description": "ConsolesAI SDK and CLI tool",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "types/types.d.ts",
   "bin": {
     "consoles-ai": "cli/index.js"
   },

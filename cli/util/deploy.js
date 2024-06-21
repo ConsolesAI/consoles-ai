@@ -113,13 +113,14 @@ if (!apiKey) {
       external: [],
       minify: false,
       sourcemap: false,
-      format: "esm",
-      target: ["node14"],
+      format: "cjs",
+      target: ["node"],
       loader: { ".ts": "ts" },
       tsconfig: path.join(projectRoot, "tsconfig.json"),
     });
     log.info("├── 📦 Building completed.");
     const bundleContent = fs.readFileSync(bundlePath, "utf8");
+
 
     const endpoints = extractMatches(
       /app\.(get|post|put|delete|patch)\(['"`](.*?)['"`]/g,
@@ -149,16 +150,15 @@ if (!apiKey) {
     log.info("├── 🌍 Deployment completed.");
     // Cleanup
     log.info("├── 🧹 Cleaning up build files...");
-    fs.rmSync(bundleDir, { recursive: true, force: true });
+    // fs.rmSync(bundleDir, { recursive: true, force: true });
     log.info("├── 🗑️ Cleanup completed.");
-
 
     return response.data;
   } catch (error) {
     log.error("❌ Error during deployment: " + error.message);
     // Cleanup even if there's an error
     if (fs.existsSync(bundleDir)) {
-      fs.rmSync(bundleDir, { recursive: true, force: true });
+    //  fs.rmSync(bundleDir, { recursive: true, force: true });
     }
     throw error;
   }
