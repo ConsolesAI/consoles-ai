@@ -6,7 +6,7 @@ import figlet from "figlet";
 export const deployCommand = async (entryScript = "console.ts") => {
   console.log(
     chalk.hex("#800080")(
-      figlet.textSync("consoles.ai", {
+      figlet.textSync("consoles", {
         font: "Larry 3D",
         horizontalLayout: "fitted",
       })

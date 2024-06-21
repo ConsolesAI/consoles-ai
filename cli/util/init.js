@@ -11,7 +11,7 @@ const rl = readline.createInterface({
 });
 
 export const initProject = async () => {
-  const text = figlet.textSync("consoles.ai", {
+  const text = figlet.textSync("consoles", {
     font: "Larry 3D",
     horizontalLayout: "fitted",
   });

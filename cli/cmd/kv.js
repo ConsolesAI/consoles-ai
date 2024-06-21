@@ -9,7 +9,7 @@ import { readEnvFile } from "../util/file.js";
 const displayFiglet = () => {
     console.log(
         chalk.hex("#800080")(
-            figlet.textSync("consoles.ai", {
+            figlet.textSync("consoles", {
                 font: "Larry 3D",
                 horizontalLayout: "fitted",
             })
