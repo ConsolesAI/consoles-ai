@@ -30,7 +30,7 @@ class LLM {
 
   constructor(
     name: string,
-    defaultOptions: LLMOptions = {
+    defaultOptions: LLMOptions<llmProviders> = {
       maxTokens: 100,
       temperature: 0.5,
     }

@@ -9,8 +9,8 @@
     "consoles-ai": "cli/index.js"
   },
   "scripts": {
-    "build": "rimraf dist && tsc --project tsconfig.build.json && cp ./package.cjs.json ./dist/cjs/package.json",
-    "build:watch": "rimraf dist && tsc --watch --project tsconfig.build.json"
+    "build": "rimraf dist && tsc --noEmit --skipLibCheck --rootDir ./src && tsc --build tsconfig.build.json --force && mkdir -p dist/cjs && cp ./package.cjs.json ./dist/cjs/package.json",
+    "build:watch": "rimraf dist && tsc --noEmit --skipLibCheck --rootDir ./src && tsc --build tsconfig.build.json --watch --force && mkdir -p dist/cjs && cp ./package.cjs.json ./dist/cjs/package.json"
   },
   "repository": {
     "type": "git",
