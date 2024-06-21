@@ -27,11 +27,7 @@ const handleResponse = async (response, successMsg, errorMsg) => {
 
 export const kvCommand = async (action, namespace, key, value) => {
     displayFiglet();
-    const envPath = path.join(os.homedir(), ".consoles.env");
-    const apiKey = fs.existsSync(envPath) ? readEnvFile(envPath).API_KEY : null;
-    
-    if (!apiKey)
-        throw new Error("API key not found. Please run the setup command.");
+
 
     if (!action) {
         log.info("Available KV commands:");
@@ -53,6 +49,12 @@ export const kvCommand = async (action, namespace, key, value) => {
         return;
     }
     try {
+        const envPath = path.join(os.homedir(), ".consoles.env");
+        const apiKey = fs.existsSync(envPath) ? readEnvFile(envPath).API_KEY : null;
+    
+        if (!apiKey)
+            throw new Error("API key not found. Please run the setup command.");
+
         const apiUrl = "https://api.consoles.ai/v1/kv";
         const headers = {
             "Content-Type": "application/json",
@@ -60,6 +62,7 @@ export const kvCommand = async (action, namespace, key, value) => {
         };
 
         switch (action) {
+            
             case "new":
                 if (!namespace) {
                     log.error("Space name is required for this action");

@@ -1,4 +1,4 @@
-import * as fs from "fs/promises";
+import * as fs from "fs";
 import chalk from "chalk";
 import figlet from "figlet";
 import crypto from "crypto";
@@ -6,10 +6,10 @@ import { log } from "../util/log.js";
 import readline from "readline";
 
 export const displayFiglet = async (text, color = "#4B0082") => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     figlet(text, { horizontalLayout: "full" }, (err, data) => {
       if (err) {
-        reject(err);
+        console.error('Something went wrong...', err);
         return;
       }
       console.log(chalk.hex(color)(data));
@@ -19,7 +19,7 @@ export const displayFiglet = async (text, color = "#4B0082") => {
 };
 
 export const readEnvFile = async (envPath) => {
-  const envContent = await fs.readFile(envPath, "utf-8");
+  const envContent = await fs.promises.readFile(envPath, "utf-8");
   return Object.fromEntries(
     envContent
       .split("\n")
@@ -32,7 +32,7 @@ export const generateToken = async () => {
   return new Promise((resolve, reject) => {
     crypto.randomBytes(16, (err, buffer) => {
       if (err) reject(err);
-      else resolve(buffer.toString("hex"));
+      resolve(buffer.toString("hex"));
     });
   });
 };
@@ -57,6 +57,6 @@ export const waitForKeyPress = async () => {
 
 export const saveEnvFile = async (envPath, envData) => {
   const data = `TOKEN=${envData.TOKEN}\nAPI_KEY=${envData.API_KEY}\n`;
-  await fs.writeFile(envPath, data);
+  await fs.promises.writeFile(envPath, data);
   log.success("API key and token saved to 📁 " + chalk.cyan(envPath));
 };
