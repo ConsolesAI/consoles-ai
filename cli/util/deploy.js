@@ -37,7 +37,7 @@ export const deployProject = async () => {
   }
 
   const fileContent = fs.readFileSync(entryScript, "utf8");
-  const projectNameMatch = fileContent.match(/new Console\('([^']+)'\)/);
+  const projectNameMatch = fileContent.match(/new Console\('([^']+)'(?:,\s*'([^']+)')?\)/);
 
   if (!projectNameMatch) {
     throw new Error(
