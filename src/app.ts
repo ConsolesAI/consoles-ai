@@ -6,7 +6,7 @@ import { poweredBy } from "hono/powered-by";
 import { LLM } from "./llm";
 import { VM } from "./vm";
 import { KV } from "./kv";
-import { LLMOptions } from "./types/types";
+import { LLMOptions, llmProviders } from "./types/types";
 
 
 function addShortcuts() {
@@ -162,8 +162,7 @@ getName(): string {
   return this.name;
 }
 
-// @ts-ignore
-llm(name: string, defaultOptions?: LLMOptions): LLM {
+llm(name: string, defaultOptions?: LLMOptions<llmProviders>): LLM {
   return new LLM(name, defaultOptions || {});
 }
 

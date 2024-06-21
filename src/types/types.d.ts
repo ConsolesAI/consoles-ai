@@ -31,7 +31,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#country
      */
     country?: string;
 
@@ -47,7 +46,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#asn
      */
     asn?: string;
 
@@ -63,7 +61,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#organization
      */
     organization?: string;
 
@@ -79,7 +76,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#httpProtocol
      */
     httpProtocol?: string;
 
@@ -95,7 +91,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#tlsCipher
      */
     tlsCipher?: string;
 
@@ -111,7 +106,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#tlsVersion
      */
     tlsVersion?: string;
 
@@ -127,7 +121,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#city
      */
     city?: string;
 
@@ -143,7 +136,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#continent
      */
     continent?: string;
 
@@ -159,7 +151,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {number | undefined}
-     * @see https://consoles.ai/docs/sdk/context#latitude
      */
     latitude?: number;
 
@@ -175,7 +166,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {number | undefined}
-     * @see https://consoles.ai/docs/sdk/context#longitude
      */
     longitude?: number;
 
@@ -191,7 +181,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#postalCode
      */
     postalCode?: string;
 
@@ -207,7 +196,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#metroCode
      */
     metroCode?: string;
 
@@ -223,7 +211,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#timezone
      */
     timezone?: string;
 
@@ -239,7 +226,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#state
      */
     state?: string;
 
@@ -255,7 +241,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#datacenter
      */
     datacenter?: string;
 
@@ -271,7 +256,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#stateCode
      */
     stateCode?: string;
 
@@ -287,7 +271,6 @@ declare module 'hono' {
      * ```
      * 
      * @type {string | undefined}
-     * @see https://consoles.ai/docs/sdk/context#ip
      */
     ip?: string;
   }
@@ -336,7 +319,9 @@ declare module 'consoles-ai' {
      * @param name The unique identifier for the LLM instance. This name is used to reference the instance within your application.
      * @returns Returns a new `LLM` object, which represents the initialized language model. This object provides methods to configure and interact with the model.
      */
-    llm(name: string, defaultOptions?: LLMOptions): LLM;
+    
+    llm(name: string, defaultOptions?: LLMOptions<llmProviders>): LLM;
+  
   }
 
   class LLM {

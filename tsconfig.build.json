@@ -5,7 +5,9 @@
       "rootDir": "./src/",
       "outDir": "./dist/",
       "noUnusedLocals": true,
-      "noUnusedParameters": true
+      "noUnusedParameters": true,
+      "noEmitOnError": false,
+      "skipLibCheck": true
     },
     "include": [
       "src/**/*.ts",
