@@ -52,5 +52,15 @@
     "@types/figlet": "^1.5.8",
     "@types/node": "^20.12.12"
   },
-  "type": "module"
+  "type": "module",
+  "files": [
+    "dist/**/*",
+    "cli/**/*"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  }
 }
