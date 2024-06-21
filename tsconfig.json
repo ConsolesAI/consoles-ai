@@ -21,6 +21,7 @@
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.mts",
-    "src/**/*.tsx"
+    "src/**/*.tsx",
+    "src/types/*.d.ts" // Add this line
   ]
 }
