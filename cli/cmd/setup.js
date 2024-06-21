@@ -55,7 +55,7 @@ export const setupCommand = async () => {
         await saveEnvFile(envPath, token, apiKey);
         log.success("ConsolesAI setup completed. ✅");
         log.info(
-          "Use 'consoles init' to start your first project or use 'consoles run <script.name>'"
+          "Use 'consoles-ai init' to start your first project or use 'consoles-ai run <script.name>'"
         );
       } else {
         log.error("Failed to retrieve token or API key.");
@@ -64,7 +64,7 @@ export const setupCommand = async () => {
   } else {
     log.success("ConsolesAI setup completed. ✅");
     log.info(
-      "Use 'consoles init' to start your first project or use 'consoles run <script.name>'"
+      "Use 'consoles-ai init' to start your first project or use 'consoles-ai run <script.name>'"
     );
   }
 };
