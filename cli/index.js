@@ -6,7 +6,6 @@ import { deployCommand } from "./cmd/deploy.js";
 import { kvCommand } from "./cmd/kv.js";
 import { initCommand } from "./cmd/init.js";
 
-
 const program = new Command();
 
 program
@@ -16,10 +15,9 @@ program
 
 program
   .command("run <script>")
-  .description("Run a script in ConsolesAI cloud environment")
-  // .action(runCommand);
+  .description("Run a script in ConsolesAI cloud environment");
 
-  program
+program
   .command("init")
   .description("Initialize a new ConsolesAI project")
   .action(initCommand);
@@ -29,7 +27,7 @@ program
   .description("Deploy your project to ConsolesAI cloud")
   .action(deployCommand);
 
-  program
+program
   .command('kv [action] [namespace] [key] [value]')
   .description('Key-Value store commands')
   .action((action, namespace, key, value) => {
