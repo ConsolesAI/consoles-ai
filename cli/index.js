@@ -58,8 +58,7 @@ program
     program.outputHelp();
   });
 
-  program
-  .version(packageJson.version, '-v, --version', 'Display the current version of ConsolesAI');
-
+program
+  .version(packageJson.version, '-v, --v, --version', 'Display the current version of ConsolesAI');
 
 program.parse(process.argv);
