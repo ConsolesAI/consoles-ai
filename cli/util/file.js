@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { log } from "../util/log.js";
 import readline from "readline";
 
+
 export const displayFiglet = async (text, color = "#4B0082") => {
   return new Promise((resolve) => {
     figlet(text, { horizontalLayout: "full" }, (err, data) => {
