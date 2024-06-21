@@ -3,16 +3,22 @@
   "compilerOptions": {
     "module": "ES2020",
     "rootDir": "./src/",
-    "outDir": "./dist/",
+    "outDir": "./dist/types/",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "declaration": true,
+    "emitDeclarationOnly": true
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.mts",
-    "src/**/*.tsx"
+    "src/**/*.mts"
   ],
   "exclude": [
+    "src/mod.ts",
+    "src/helper.ts",
+    "src/middleware.ts",
+    "src/deno/**/*.ts",
+    "src/test-utils/*.ts",
     "src/**/*.test.ts",
     "src/**/*.test.tsx"
   ]

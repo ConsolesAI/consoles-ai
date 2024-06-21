@@ -1,4 +1,4 @@
-import { ProviderModels } from './types/ProviderModels';
+import { ProviderModels } from './ProviderModels';
 
 export interface Prompt {
   system: string;

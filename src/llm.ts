@@ -2,7 +2,7 @@ import type {
   LLMOptions,
   llmProviders,
   ProviderModelNames,
-} from './types.js';
+} from './types/index.d.ts';
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { z } from "zod";
 import { sanitizeToJson } from './helpers.js';
