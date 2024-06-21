@@ -1,6 +1,5 @@
 import { Hono, Context, Env } from 'hono';
 import { ProviderModels } from './ProviderModels';
-import { extendedContext } from './extendedContext';
 
 export interface Prompt {
   system: string;
@@ -367,5 +366,4 @@ declare module 'consoles-ai' {
     chat(prompt: any, options?: LLMOptions): Promise<any>;
   }
 
-  export { ConsoleContext as Context, Env };
 }

@@ -1,16 +1,15 @@
 {
   "name": "consoles-ai",
-  "version": "0.0.9",
-  "description": "ConsolesAI SDK & CLI tool",
-  "main": "dist/cjs/index.js",
-  "module": "dist/index.js",
-  "types": "dist/types/index.d.ts",
+  "version": "0.0.62",
+  "description": "ConsolesAI SDK and CLI tool",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
     "consoles-ai": "cli/index.js"
   },
   "scripts": {
-    "build": "rimraf dist && tsc --project tsconfig.build.json && cp ./package.cjs.json ./dist/cjs/package.json",
-    "build:watch": "rimraf dist && tsc --watch --project tsconfig.build.json"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -42,6 +41,7 @@
     "hono": "^4.3.7",
     "inquirer": "^9.2.23",
     "install": "^0.13.0",
+    "npm": "^10.8.1",
     "open": "^10.1.0",
     "os": "^0.1.2",
     "typescript": "^5.4.5",
@@ -50,8 +50,7 @@
   },
   "devDependencies": {
     "@types/figlet": "^1.5.8",
-    "@types/node": "^20.12.12",
-    "rimraf": "^3.0.2"
+    "@types/node": "^20.12.12"
   },
   "type": "module",
   "files": [
@@ -61,7 +60,7 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/cjs/index.js"
+      "require": "./dist/index.js"
     }
   }
 }
