@@ -9,7 +9,7 @@ import figlet from "figlet";
 import chalk from "chalk";
 
 export const setupCommand = async () => {
-  const text = figlet.textSync("consoles.ai", {
+  const text = figlet.textSync("consoles", {
     font: "Larry 3D",
     horizontalLayout: "fitted",
   });

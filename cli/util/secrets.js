@@ -7,7 +7,7 @@ import { displayFiglet, readEnvFile } from "../util/file.js";
 import figlet from "figlet";
 
 const displayConsolesAiFiglet = () => {
-    const text = figlet.textSync("consoles.ai", {
+    const text = figlet.textSync("consoles", {
         font: "Larry 3D",
         horizontalLayout: "fitted",
     });
