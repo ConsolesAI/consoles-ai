@@ -1,6 +1,6 @@
 {
   "name": "consoles-ai",
-  "version": "0.0.51",
+  "version": "0.0.52",
   "description": "ConsolesAI SDK and CLI tool",
   "main": "index.js",
   "types": "types/types.d.ts",
