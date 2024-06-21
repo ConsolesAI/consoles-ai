@@ -45,7 +45,7 @@ program
   });
 
 program
-  .command('secret [action] [space] [key] [value]')
+  .command('secrets [action] [space] [key] [value]')
   .description('Secret Spaces management commands')
   .action((action, namespace, key, value) => {
     secretsCommand(action, namespace, key, value);
