@@ -18,8 +18,12 @@ export function sanitizeToJson(contentText: string): string {
   if (contentText.includes('":"')) {
       // Ensure the content is wrapped in '{' and '}'
       let jsonStr = contentText;
-      jsonStr = jsonStr.startsWith("{") ? jsonStr : "{" + jsonStr;
-      jsonStr = jsonStr.endsWith("}") ? jsonStr : jsonStr + "}";
+      if (!jsonStr.startsWith("{")) {
+          jsonStr = "{" + jsonStr;
+      }
+      if (!jsonStr.endsWith("}")) {
+          jsonStr = jsonStr + "}";
+      }
 
       // If there are two '}' at the end, remove one
       while (jsonStr.endsWith("}}")) {
