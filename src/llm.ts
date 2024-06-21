@@ -2,7 +2,6 @@ import type {
   LLMOptions,
   llmProviders,
   ProviderModelNames,
-  Prompt,
 } from "./types/types.js";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { z } from "zod";

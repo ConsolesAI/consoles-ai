@@ -1,5 +1,5 @@
 import { Hono, Context, Env } from "hono";
-import { upgradeWebSocket } from "hono/cloudflare-workers";
+// import { upgradeWebSocket } from "hono/cloudflare-workers";
 import { prettyJSON } from "hono/pretty-json";
 import { etag } from "hono/etag";
 import { poweredBy } from "hono/powered-by";
@@ -7,6 +7,7 @@ import { LLM } from "./llm";
 import { VM } from "./vm";
 import { KV } from "./kv";
 import { LLMOptions } from "./types/types";
+
 
 function addShortcuts() {
   const properties = [
@@ -64,7 +65,7 @@ function addShortcuts() {
 
 export class Console extends Hono<Env> {
   private currentContext: Context | null = null;
-  private name: string; // Add this line
+  private name: string; 
   private apiKey?: string; // Add this line
 
   constructor(name: string, apiKey?: string) {
@@ -156,10 +157,15 @@ export class Console extends Hono<Env> {
  getCurrentContext(): Context | null {
   return this.currentContext;
 }
+// Get Consoles app name
+getName(): string {
+  return this.name;
+}
 
-  llm(name: string, defaultOptions: LLMOptions = {}): LLM {
-    return new LLM(name, defaultOptions);
-  }
+// @ts-ignore
+llm(name: string, defaultOptions?: LLMOptions): LLM {
+  return new LLM(name, defaultOptions || {});
+}
 
   kv(namespace: string) {
     const getContext = () => {
