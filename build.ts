@@ -11,6 +11,24 @@ const args = arg({
 
 const isWatch = args['--watch'] || false;
 
+
+function removeDir(dirPath: string) {
+    if (fs.existsSync(dirPath)) {
+      fs.readdirSync(dirPath).forEach((file) => {
+        const filePath = path.join(dirPath, file);
+        if (fs.lstatSync(filePath).isDirectory()) {
+          removeDir(filePath);
+        } else {
+          fs.unlinkSync(filePath);
+        }
+      });
+      fs.rmdirSync(dirPath);
+    }
+  }
+  
+
+  
+
 const entryPoints = glob.sync('./src/**/*.ts', {
   ignore: ['./src/**/*.test.ts', './src/mod.ts', './src/middleware.ts', './src/deno/**/*.ts'],
 });
@@ -78,13 +96,14 @@ const esmBuild = async () => {
   }
 };
 
+removeDir('./dist');
 // Generate type declarations first
 exec(`tsc ${isWatch ? '-w' : ''} --project tsconfig.build.json`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`exec error: ${error}`);
-      return;
-    }
-  
-    // Then build the JavaScript code
-    Promise.all([esmBuild(), cjsBuild()]);
-  });
+  if (error) {
+    console.error(`exec error: ${error}`);
+    return;
+  }
+
+  // Then build the JavaScript code
+  Promise.all([esmBuild(), cjsBuild()]);
+});
