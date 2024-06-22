@@ -59,21 +59,16 @@ export const initProject = async () => {
 
   const tsconfigContent = `{
     "compilerOptions": {
-      "target": "es2021",
-      "lib": ["es2021"],
-      "jsx": "react",
-      "module": "es2022",
-      "moduleResolution": "node",
-      "types": ["@cloudflare/workers-types"],
-      "resolveJsonModule": true,
-      "allowJs": true,
-      "checkJs": false,
-      "noEmit": true,
-      "isolatedModules": true,
-      "allowSyntheticDefaultImports": true,
-      "forceConsistentCasingInFileNames": true,
+      "target": "ESNext",
+      "module": "ESNext",
+      "moduleResolution": "Bundler",
       "strict": true,
-      "skipLibCheck": true
+      "skipLibCheck": true,
+      "types": [
+        "node"
+      ],
+      "jsx": "react-jsx",
+      "jsxImportSource": "hono/jsx",
     }
   }`;
 
@@ -83,7 +78,8 @@ export const initProject = async () => {
     "private": true,
     "description": "${projectDescription}",
     "scripts": {
-      "deploy": "consoles-ai deploy"
+      "deploy": "consoles-ai deploy",
+      "dev": "tsx watch src/local.ts"
     },
     "devDependencies": {
       "@cloudflare/workers-types": "^4.20230419.0",
@@ -126,7 +122,19 @@ app.get('/', (c) => {
 export default app;
 `;
 
+const localFile = `import { serve } from '@hono/node-server';
+import app from './console';
+
+const port = 3000;
+console.log('Server is running on port ' + port);
+
+serve({
+    fetch: app.fetch,
+    port: port
+});`;
+
   fs.writeFileSync(path.join(srcDir, "console.ts"), consoleContent);
+  fs.writeFileSync(path.join(srcDir, "local.ts"), localFile);
 
   log.info(chalk.blue.bold("📦 Installing dependencies..."));
   const { execSync } = await import("child_process");
