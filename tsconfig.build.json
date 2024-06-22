@@ -6,8 +6,6 @@
     "outDir": "./dist/types/",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "declaration": true,
-    "emitDeclarationOnly": true
   },
   "include": [
     "src/**/*.ts",

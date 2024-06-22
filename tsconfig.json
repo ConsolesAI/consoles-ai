@@ -22,5 +22,5 @@
     "src/**/*.d.ts",
     "src/**/*.mts",
     "src/**/*.tsx"
-, "src/types/index.d.ts"  ]
+, "src/types.ts", "src/index.ts"  ]
 }

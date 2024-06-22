@@ -46,6 +46,7 @@
     "install": "^0.13.0",
     "open": "^10.1.0",
     "os": "^0.1.2",
+    "promisify": "^0.0.3",
     "tsx": "^4.15.7",
     "typescript": "^5.4.5",
     "zod": "^3.23.8",
@@ -54,6 +55,7 @@
   "devDependencies": {
     "@hono/node-server": "^1.11.4",
     "@types/figlet": "^1.5.8",
+    "@types/glob": "^8.1.0",
     "@types/node": "^20.12.12",
     "esbuild": "^0.21.5",
     "eslint": "^8.32.0",

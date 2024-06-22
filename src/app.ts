@@ -5,7 +5,7 @@ import { poweredBy } from "hono/powered-by";
 import { LLM } from "./llm";
 import { VM } from "./vm";
 import { KV } from "./kv";
-import type { LLMOptions, llmProviders } from "./types/index.d.ts";
+import type { LLMOptions, llmProviders } from ".";
 
 export class Console extends Hono<Env> {
   private name: string; 
