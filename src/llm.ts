@@ -95,12 +95,9 @@ class LLM {
   }
 
   async cloudflareAIChat(messages: any[], options: LLMOptions) {
-    if (!options.keys?.cloudflare) {
-      throw new Error("Cloudflare API key is missing.");
-    }
-    const [accountId, apiToken] = options.keys.cloudflare.split("|");
-
-    console.log(`using Cloudflare ${this.model} and ID/Key ${accountId} ${apiToken}`);
+    if (!options.keys?.cloudflare?.accountId) throw new Error("Cloudflare accountId is missing."); if (!options.keys?.cloudflare?.apiKey) throw new Error("Cloudflare apiKey is missing.");
+    const { accountId, apiKey } = options.keys.cloudflare;
+    console.log(`using Cloudflare ${this.model} and ID/Key ${accountId} ${apiKey}`);
     const modelAliases = {
      
     };
@@ -144,7 +141,7 @@ class LLM {
         {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${apiToken}`,
+            "Authorization": `Bearer ${apiKey}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
