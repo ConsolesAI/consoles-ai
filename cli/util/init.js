@@ -84,7 +84,9 @@ export const initProject = async () => {
     "devDependencies": {
       "@cloudflare/workers-types": "^4.20230419.0",
       "typescript": "^5.0.4",
-      "@hono/node-server": "^1.11.4"
+      "@hono/node-server": "^1.11.4",
+      "tsx": "^4.0.0",
+      "typescript": "^5.4.5"
     }
   }`;
 
