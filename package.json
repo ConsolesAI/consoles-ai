@@ -52,6 +52,7 @@
     "zod-to-json-schema": "^3.23.0"
   },
   "devDependencies": {
+    "@hono/node-server": "^1.11.4",
     "@types/figlet": "^1.5.8",
     "@types/node": "^20.12.12",
     "esbuild": "^0.21.5",
