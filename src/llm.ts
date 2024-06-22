@@ -40,6 +40,18 @@ class LLM {
     this.tools = [];
   }
 
+    /**
+   * Configures the LLM instance with provider-specific options.
+   * @example
+   * const llm = new LLM('myLLM');
+   * llm.config({
+   *   provider: 'openai',
+   *   model: 'gpt-3.5-turbo',
+   *   keys: { openai: 'your-api-key' },
+   *   maxTokens: 150,
+   *   temperature: 0.7
+   * });
+   */
   config<T extends llmProviders>(
     options: LLMOptions & {
       provider: T;
@@ -94,13 +106,12 @@ class LLM {
       throw error;
     }
   }
-
+  
   async cloudflareAIChat(messages: any[], options: LLMOptions) {
-    if (!options.keys?.cloudflare) {
-      throw new Error("Cloudflare API key is missing.");
+    if (!options.keys?.cloudflare?.apiKey || !options.keys?.cloudflare?.accountId) {
+      throw new Error("Cloudflare API key or account ID is missing.");
     }
-    const apiToken = options.keys?.cloudflare.split("|")[1];
-    const accountId = options.keys?.cloudflare.split("|")[0];
+    const { apiKey, accountId } = options.keys.cloudflare;
 
     const modelAliases = {
       "llama-3-8b-instruct": "@cf/meta/llama-3-8b-instruct",
@@ -138,7 +149,7 @@ class LLM {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${apiToken}`,
+            Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
             model: this.model,
@@ -170,6 +181,7 @@ class LLM {
       throw error;
     }
   }
+
 
   async claudeAIChat(messages: any[], options: LLMOptions) {
     try {
