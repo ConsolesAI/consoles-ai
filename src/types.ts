@@ -17,7 +17,10 @@ export interface LLMOptions<T extends llmProviders = llmProviders> {
     anthropic?: string;
     cohere?: string;
     google?: string;
-    cloudflare?: string;
+    cloudflare?: {
+      accountId: string;
+      apiKey: string;
+    };
   };
   provider?: T;
   model?: ProviderModelNames<T>;
