@@ -101,18 +101,18 @@ getName(): string {
 }
 
 // Implementation signature
-llm(name: string, defaultOptions: Partial<LLMOptions<llmProviders>> = {}): LLM {
+LLM(name: string, defaultOptions: Partial<LLMOptions<llmProviders>> = {}): LLM {
   return new LLM(name, defaultOptions);
 }
 
-kv(namespace: string): KV {
+KV(namespace: string): KV {
   return new KV(() => {
     throw new Error('No context available');
   }, namespace, this.apiKey!);
 }
 
 // Method to create a VM
-vm(name: string): VM {
+VM(name: string): VM {
   return new VM(name);
 }
 
