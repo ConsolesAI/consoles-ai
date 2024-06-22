@@ -161,8 +161,9 @@ class LLM {
       const contentText = data.choices[0].message.content;
 
       if (options.json) {
-        if (sanitizeToJson(contentText)) {  
-          return sanitizeToJson(contentText);
+        const sanitizedContent = await sanitizeToJson(contentText);
+        if (sanitizedContent) {
+          return sanitizedContent;
         } else {
           return JSON.stringify({ error: "Invalid JSON format", originalMessage: contentText });
         }
