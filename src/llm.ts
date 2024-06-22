@@ -2,7 +2,7 @@ import type {
   LLMOptions,
   llmProviders,
   ProviderModelNames,
-} from './index.js';
+} from './types.js';
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { z } from "zod";
 import { sanitizeToJson } from './helpers.js';
@@ -40,18 +40,6 @@ class LLM {
     this.tools = [];
   }
 
-    /**
-   * Configures the LLM instance with provider-specific options.
-   * @example
-   * const llm = new LLM('myLLM');
-   * llm.config({
-   *   provider: 'openai',
-   *   model: 'gpt-3.5-turbo',
-   *   keys: { openai: 'your-api-key' },
-   *   maxTokens: 150,
-   *   temperature: 0.7
-   * });
-   */
   config<T extends llmProviders>(
     options: LLMOptions & {
       provider: T;
@@ -81,8 +69,8 @@ class LLM {
   async raw(messages: any[], options: LLMOptions = {}) {
     try {
       const mergedOptions = { ...this.defaultOptions, ...options };
-      let response;
-
+      let response: OpenAIResponse | AnthropicResponse | any; // Specify possible types
+  
       switch (this.provider) {
         case "openai":
           response = await this.openAIChat(messages, mergedOptions);
@@ -91,7 +79,6 @@ class LLM {
           response = await this.claudeAIChat(messages, mergedOptions);
           break;
         case "cloudflare":
-          console.log(`using `);
           response = await this.cloudflareAIChat(messages, mergedOptions);
           break;
         // Add other providers here
@@ -99,70 +86,76 @@ class LLM {
           throw new Error(`Unsupported provider: ${this.provider}`);
       }
       const data = response;
-
+  
       return data;
     } catch (error) {
       console.error("Error in raw method:", error);
       throw error;
     }
   }
-  
-  async cloudflareAIChat(messages: any[], options: LLMOptions) {
-    if (!options.keys?.cloudflare?.apiKey || !options.keys?.cloudflare?.accountId) {
-      throw new Error("Cloudflare API key or account ID is missing.");
-    }
-    const { apiKey, accountId } = options.keys.cloudflare;
 
+  async cloudflareAIChat(messages: any[], options: LLMOptions) {
+    if (!options.keys?.cloudflare) {
+      throw new Error("Cloudflare API key is missing.");
+    }
+    const [accountId, apiToken] = options.keys.cloudflare.split("|");
+
+    console.log(`using Cloudflare ${this.model} and ID/Key ${accountId} ${apiToken}`);
     const modelAliases = {
-      "llama-3-8b-instruct": "@cf/meta/llama-3-8b-instruct",
-      "llama-3-8b-instruct-awq": "@cf/meta/llama-3-8b-instruct-awq",
+     
     };
 
     if (modelAliases[this.model as keyof typeof modelAliases]) {
       this.model = modelAliases[this.model as keyof typeof modelAliases];
     }
 
+
     try {
-      // Combine multiple system messages into one
-      const systemMsgs = messages
-        .filter((message) => message.role === "system")
-        .map((message) => message.content);
-      const systemMsg =
-        systemMsgs.length > 0 ? systemMsgs.join("\n") : undefined;
-      messages = messages.filter((message) => message.role !== "system");
 
-      if (systemMsg) {
-        messages.unshift({ role: "system", content: systemMsg });
-      }
+    // Combine multiple system messages into one
+    const systemMsgs = messages
+    .filter((message) => message.role === "system")
+    .map((message) => message.content);
+  const systemMsg =
+    systemMsgs.length > 0 ? systemMsgs.join("\n") : undefined;
+  messages = messages.filter((message) => message.role !== "system");
 
-      if (options.json) {
-        messages.push({
-          role: "assistant",
-          content:
-            "You're right! I will NEVER return the schema! Here are the computed determined values in a valid JSON object based on the schema you provided:\n{",
-        });
-      }
+  if (systemMsg) {
+    messages.unshift({ role: "system", content: systemMsg });
+  }
 
+  if (options.json) {
+    messages.push({
+      role: "assistant",
+      content:
+        "You're right! I will NEVER return the schema! Here are the computed determined values in a valid JSON object based on the schema you provided:\n{",
+    });
+  }
+      console.log('Cloudflare API request payload:', {
+        model: this.model,
+       messages,
+        temperature: options.temperature || 0.5,
+        max_tokens: options.maxTokens || 100,
+        top_p: options.topP || 1,
+      });
+  
       const response = await fetch(
         `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/v1/chat/completions`,
         {
           method: "POST",
           headers: {
+            "Authorization": `Bearer ${apiToken}`,
             "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            model: this.model,
-            messages,
+            model: "@cf/meta/llama-3-8b-instruct",
+            messages: messages,
             temperature: options.temperature || 0.5,
             max_tokens: options.maxTokens || 100,
             top_p: options.topP || 1,
-            frequency_penalty: options.frequencyPenalty || 0,
-            presence_penalty: options.presencePenalty || 0,
           }),
         }
       );
-
       const data = (await response.json()) as OpenAIResponse;
       logger(messages, options, data.choices[0].message.content);
       const contentText = data.choices[0].message.content;
@@ -350,8 +343,10 @@ class LLM {
         });
         enforcedJsonOptions = { ...mergedOptions, json: true };
         directions = await this.raw(messages, enforcedJsonOptions);
- // Sanitize the response
- directions = directions.replace(/[^\x20-\x7E]/g, '');
+        // Ensure directions is a string before calling replace
+        if (typeof directions === 'string') {
+          directions = directions.replace(/[^\x20-\x7E]/g, '');
+        }
 
         return JSON.parse(directions);
       } else {
@@ -379,10 +374,11 @@ class LLM {
 }
 
 async function logger(messages: any[], options: LLMOptions, response: any) {
-  console.log(`Sending request to ${options.provider}`);
-  console.log(`Model: ${options.model}`);
-  console.log(`Messages:`, JSON.stringify(messages, null, 2));
-  console.log(`Options:`, JSON.stringify(options, null, 2));
-  console.log(`response:`, response);
+    console.log(`Sending request to ${options.provider}`);
+    console.log(`Model: ${options.model}`);
+    console.log(`Messages:`, JSON.stringify(messages, null, 2));
+    console.log(`Options:`, JSON.stringify(options, null, 2));
+    console.log(`response:`, response);
+
 }
 export { LLM, OpenAIResponse, LLMOptions };
