@@ -145,7 +145,7 @@ class LLM {
         }
       );
       const data = (await response.json()) as OpenAIResponse;
-      logger(messages, options, data.choices[0].message.content);
+      // logger(messages, options, data.choices[0].message.content);
       const contentText = data.choices[0].message.content;
 
       if (options.json) {
@@ -210,7 +210,7 @@ class LLM {
         }),
       });
       let data = (await response.json()) as AnthropicResponse;
-      logger(messages, options, data);
+      // logger(messages, options, data);
       const contentText = data.content.map((item) => item.text).join("\n");
 
       if (options.json) {
@@ -255,7 +255,7 @@ class LLM {
       );
 
       const data = (await response.json()) as OpenAIResponse;
-     logger(messages, options, data);
+    // logger(messages, options, data);
       return data.choices[0].message.content;
     } catch (error) {
       console.error("Error in openAIChat method:", error);
