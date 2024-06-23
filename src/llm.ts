@@ -97,7 +97,6 @@ class LLM {
   async cloudflareAIChat(messages: any[], options: LLMOptions) {
     if (!options.keys?.cloudflare?.accountId) throw new Error("Cloudflare accountId is missing."); if (!options.keys?.cloudflare?.apiKey) throw new Error("Cloudflare apiKey is missing.");
     const { accountId, apiKey } = options.keys.cloudflare;
-    console.log(`using Cloudflare ${this.model} and ID/Key ${accountId} ${apiKey}`);
     const modelAliases = {
      
     };
@@ -128,14 +127,6 @@ class LLM {
         "You're right! I will NEVER return the schema! Here are the computed determined values in a valid JSON object based on the schema you provided:\n{",
     });
   }
-      console.log('Cloudflare API request payload:', {
-        model: this.model,
-       messages,
-        temperature: options.temperature || 0.5,
-        max_tokens: options.maxTokens || 100,
-        top_p: options.topP || 1,
-      });
-  
       const response = await fetch(
         `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/v1/chat/completions`,
         {
@@ -324,7 +315,6 @@ class LLM {
       if (prompt.schema) {
         const schema = zodToJsonSchema(prompt.schema, { target: "openApi3" });
 
-        // console.log(`schema is ${schema}`);
 
         messages.push({
           role: "system",
