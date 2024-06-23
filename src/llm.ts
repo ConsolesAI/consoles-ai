@@ -370,4 +370,5 @@ async function logger(messages: any[], options: LLMOptions, response: any) {
     console.log(`response:`, response);
 
 }
-export { LLM, OpenAIResponse, LLMOptions };
+export { LLM };
+export type { OpenAIResponse, LLMOptions };
