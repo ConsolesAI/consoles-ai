@@ -142,6 +142,15 @@ if (!apiKey) {
     log.info("├── ✨ Deploying to cloud...");
 
     // Actually deploy to  WfP API
+    const wrkr = path.join(bundleDir, `${projectName}_bundle.mjs`);
+    const r = await fetch(`https://api.consoles.ai/deploy`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({ projectName, wrkr }),
+    });
     
     const response = {
       data: {
@@ -155,9 +164,9 @@ if (!apiKey) {
     };
     log.info("├── 🌍 Deployment completed.");
     // Cleanup
-    log.info("├── 🧹 Cleaning up build files...");
+    log.info("├── 🧹 Cleaning up...");
     // fs.rmSync(bundleDir, { recursive: true, force: true });
-    log.info("├── 🗑️ Cleanup completed.");
+    log.info("├── 🗑️ Cleanup completed!");
 
     return response.data;
   } catch (error) {

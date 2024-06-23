@@ -4,14 +4,25 @@ import chalk from "chalk";
 import figlet from "figlet";
 
 export const deployCommand = async (entryScript = "console.ts") => {
-  console.log(
-    chalk.hex("#800080")(
-      figlet.textSync("consoles", {
-        font: "Larry 3D",
-        horizontalLayout: "fitted",
-      })
-    )
-  );
+  const text = figlet.textSync("consoles", {
+    font: "Larry 3D",
+    horizontalLayout: "fitted",
+  });
+
+  const lines = text.split('\n');
+  const gradientColors = ['#8A2BE2', '#9370DB', '#9932CC', '#8B008B', '#800080', '#4B0082', '#6A5ACD', '#483D8B', '#7B68EE', '#9400D3', '#8B008B', '#9932CC'];
+
+  const coloredLines = lines.map((line, index) => {
+    const color = gradientColors[Math.floor(index / lines.length * gradientColors.length)];
+    return chalk.hex(color)(line);
+  });
+
+  if (process.stdout.isTTY && process.stdout.getColorDepth() > 4) {
+    console.log(coloredLines.join('\n'));
+  } else {
+    console.log(text);
+  }
+
   log.info(`🚀 Initiating deployment for: ${entryScript}`);
 
   try {
