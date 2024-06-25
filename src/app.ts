@@ -1,7 +1,6 @@
 import { Hono, Env, Context } from "hono";
 import { prettyJSON } from "hono/pretty-json";
 import { etag } from "hono/etag";
-
 import { LLM } from "./llm";
 import { VM } from "./vm";
 import { KV } from "./kv";
@@ -9,7 +8,7 @@ import type { LLMOptions, llmProviders } from ".";
 
 export class Console extends Hono<Env> {
   private currentContext: Context | null = null;
-  private name: string; 
+  private name: string;
   private apiKey?: string;
 
   constructor(name: string, apiKey?: string) {
@@ -19,13 +18,10 @@ export class Console extends Hono<Env> {
     this.use("/etag/*", etag());
     this.use(prettyJSON());
 
-
     this.use(async (c, next: () => Promise<void>) => {
       this.currentContext = c; // Set the current context
       await next();
     });
-
-
 
     this.use(async (c, next: () => Promise<void>) => {
       const start = Date.now();
@@ -33,7 +29,6 @@ export class Console extends Hono<Env> {
       const ms = Date.now() - start;
       c.header("X-Response-Time", `${ms}ms`);
     });
-
 
     this.notFound((c) => {
       const path = c.req.url;
@@ -102,32 +97,31 @@ export class Console extends Hono<Env> {
     </div>
   </section>
   `;
-}
+  }
 
-getCurrentContext(): Context | null {
-  return this.currentContext;
-}
+  getCurrentContext(): Context | null {
+    return this.currentContext;
+  }
 
+  // Get Consoles app name
+  getName(): string {
+    return this.name;
+  }
 
-// Get Consoles app name
-getName(): string {
-  return this.name;
-}
+  // Implementation signature
+  LLM(
+    name: string,
+    defaultOptions: Partial<LLMOptions<llmProviders>> = {}
+  ): LLM {
+    return new LLM(name, defaultOptions);
+  }
 
-// Implementation signature
-LLM(name: string, defaultOptions: Partial<LLMOptions<llmProviders>> = {}): LLM {
-  return new LLM(name, defaultOptions);
-}
+  KV(namespace: string): KV {
+    return new KV(() => this.getCurrentContext()!, namespace, this.apiKey!); // Ensure context is fetched correctly
+  }
 
-
-
-KV(namespace: string): KV {
-  return new KV(() => this.getCurrentContext()!, namespace, this.apiKey!); // Ensure context is fetched correctly
-}
-
-// Method to create a VM
-VM(name: string): VM {
-  return new VM(name);
-}
-
+  // Method to create a VM
+  VM(name: string): VM {
+    return new VM(name);
+  }
 }
