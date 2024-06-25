@@ -1,13 +1,14 @@
 import { Hono, Env } from "hono";
 import { prettyJSON } from "hono/pretty-json";
 import { etag } from "hono/etag";
-import { poweredBy } from "hono/powered-by";
+import { Context } from "hono";
 import { LLM } from "./llm";
 import { VM } from "./vm";
 import { KV } from "./kv";
 import type { LLMOptions, llmProviders } from ".";
 
 export class Console extends Hono<Env> {
+  private currentContext: Context | null = null;
   private name: string; 
   private apiKey?: string;
 
@@ -15,16 +16,24 @@ export class Console extends Hono<Env> {
     super();
     this.apiKey = apiKey;
     this.name = name;
-    this.use(poweredBy());
     this.use("/etag/*", etag());
     this.use(prettyJSON());
 
-    this.use(async (c, next) => {
+
+    this.use(async (c, next: () => Promise<void>) => {
+      this.currentContext = c; // Set the current context
+      await next();
+    });
+
+
+
+    this.use(async (c, next: () => Promise<void>) => {
       const start = Date.now();
       await next();
       const ms = Date.now() - start;
       c.header("X-Response-Time", `${ms}ms`);
     });
+
 
     this.notFound((c) => {
       const path = c.req.url;
@@ -95,6 +104,11 @@ export class Console extends Hono<Env> {
   `;
 }
 
+getCurrentContext(): Context | null {
+  return this.currentContext;
+}
+
+
 // Get Consoles app name
 getName(): string {
   return this.name;
@@ -105,10 +119,10 @@ LLM(name: string, defaultOptions: Partial<LLMOptions<llmProviders>> = {}): LLM {
   return new LLM(name, defaultOptions);
 }
 
+
+
 KV(namespace: string): KV {
-  return new KV(() => {
-    throw new Error('No context available');
-  }, namespace, this.apiKey!);
+  return new KV(() => this.getCurrentContext()!, namespace, this.apiKey!); // Ensure context is fetched correctly
 }
 
 // Method to create a VM

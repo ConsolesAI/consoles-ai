@@ -15,6 +15,14 @@ export class KV {
     return `${this.prefix}:${key}`;
   }
 
+  private getContextOrThrow(): Context {
+    const context = this.getContext();
+    if (!context) {
+      throw new Error("No context available");
+    }
+    return context;
+  }
+
   async create(space: string) {
     try {
       const response = await fetch(`https://api.consoles.ai/v1/kv/${space}`, {
@@ -31,23 +39,23 @@ export class KV {
     }
   }
 
-  get(key: string) {
-    const c = this.getContext();
-    return c.env.kv.get(this.getPrefixedKey(key));
+  async get(key: string) {
+    const c = this.getContextOrThrow();
+    return await c.env.kv.get(this.getPrefixedKey(key));
   }
 
-  list(options: { prefix: string }) {
-    const c = this.getContext();
-    return c.env.kv.list({ prefix: this.getPrefixedKey(options.prefix) });
+  async list(options: { prefix: string }) {
+    const c = this.getContextOrThrow();
+    return await c.env.kv.list({ prefix: this.getPrefixedKey(options.prefix) });
   }
 
-  put(key: string, value: string) {
-    const c = this.getContext();
-    return c.env.AI.put(this.getPrefixedKey(key), value);
+  async put(key: string, value: string) {
+    const c = this.getContextOrThrow();
+    return await c.env.kv.put(this.getPrefixedKey(key), value);
   }
 
-  add(key: string, value: string) {
-    const c = this.getContext();
-    return c.env.kv.put(this.getPrefixedKey(key), value);
+  async add(key: string, value: string) {
+    const c = this.getContextOrThrow();
+    return await c.env.kv.put(this.getPrefixedKey(key), value);
   }
 }
