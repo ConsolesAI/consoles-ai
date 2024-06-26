@@ -4,6 +4,7 @@ import { etag } from "hono/etag";
 import { LLM } from "./llm";
 import { VM } from "./vm";
 import { KV } from "./kv";
+import { FS } from "./storage";
 import type { LLMOptions, llmProviders } from ".";
 
 export class Console extends Hono<Env> {
@@ -123,5 +124,9 @@ export class Console extends Hono<Env> {
   // Method to create a VM
   VM(name: string): VM {
     return new VM(name);
+  }
+
+  storage(): FS {
+    return new FS(() => this.getCurrentContext()!, this.name, this.apiKey!);
   }
 }
