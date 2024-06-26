@@ -141,16 +141,16 @@ if (!apiKey) {
 
     log.info("├── ✨ Deploying to cloud...");
 
-    // Actually deploy to  WfP API
-    const wrkr = path.join(bundleDir, `${projectName}_bundle.mjs`);
-    const r = await fetch(`https://api.consoles.ai/deploy`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({ projectName, wrkr }),
-    });
+    // // Actually deploy to  WfP API
+    // const wrkr = path.join(bundleDir, `${projectName}_bundle.mjs`);
+    // const r = await fetch(`https://api.consoles.ai/deploy`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     "Authorization": `Bearer ${apiKey}`
+    //   },
+    //   body: JSON.stringify({ projectName, wrkr }),
+    // });
     
     const response = {
       data: {
