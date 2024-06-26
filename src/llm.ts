@@ -8,6 +8,7 @@ import { z } from "zod";
 import { sanitizeToJson } from './helpers.js';
 
 
+
 interface OpenAIResponse {
   choices: {
     message: {
@@ -26,7 +27,7 @@ class LLM {
   provider: llmProviders | "";
   model: string;
   defaultOptions: LLMOptions;
-  tools: any;
+
 
   constructor(name: string, defaultOptions: Partial<LLMOptions> = {}) {
     this.name = name;
@@ -37,15 +38,14 @@ class LLM {
       temperature: 0.5,
       ...defaultOptions,
     };
-    this.tools = [];
+   
   }
 
   config<T extends llmProviders>(
     options: LLMOptions & {
       provider: T;
       model: ProviderModelNames<T>;
-      key?: string;
-      tools?: any;
+  
     }
   ): void {
     try {
@@ -56,10 +56,11 @@ class LLM {
         throw new Error(
           `API key for ${options.provider} is missing or invalid.`
         );
+        
       this.provider = options.provider;
       this.model = options.model;
       this.defaultOptions = { ...this.defaultOptions, ...options };
-      this.tools = options.tools || [];
+    
     } catch (error) {
       console.error("Error in config method:", error);
       throw error;
@@ -136,7 +137,7 @@ class LLM {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "@cf/meta/llama-3-8b-instruct",
+            model: this.model,
             messages: messages,
             temperature: options.temperature || 0.5,
             max_tokens: options.maxTokens || 100,
@@ -256,6 +257,7 @@ class LLM {
 
       const data = (await response.json()) as OpenAIResponse;
      logger(messages, options, data);
+     
       return data.choices[0].message.content;
     } catch (error) {
       console.error("Error in openAIChat method:", error);
@@ -308,15 +310,25 @@ class LLM {
       let enforcedJsonOptions: LLMOptions;
       let directions: string;
 
-      if(prompt.tools){
-        this.tools = prompt.tools;
+      if (prompt.tools) {
+        const toolsDescription = JSON.stringify(prompt.tools, null, 2);
+        messages.push({
+          role: "system",
+          content: `Based on the prompt, you have access to the following functions. Use them to complete your task:
+          ${toolsDescription}
+          
+          1. To use a function, respond with a JSON object in this format:
+             { "function": "functionName", "arguments": { "arg1": "value1", "arg2": "value2" } }
+          2. Only use the functions provided and ensure all required arguments are included.
+          3. You can use multiple functions if needed, but respond with one function call at a time.
+          4. After using a function, wait for the result before proceeding.
+          5. When your task is complete, respond with the final result as plain text.`,
+        });
+        enforcedJsonOptions = { ...mergedOptions, tools: prompt.tools };
       }
 
       if (prompt.schema) {
         const schema = zodToJsonSchema(prompt.schema, { target: "openApi3" });
-
-        // console.log(`schema is ${schema}`);
-
         messages.push({
           role: "system",
           content: `Based on the prompt, Respond with the determined final values in a valid JSON object containing all and ONLY the required properties in the defined object schema:
@@ -336,8 +348,7 @@ class LLM {
         if (typeof directions === 'string') {
           directions = directions.replace(/[^\x20-\x7E]/g, '');
         }
-
-        return JSON.parse(directions);
+      return JSON.parse(directions);
       } else {
         enforcedJsonOptions = { ...mergedOptions, json: options.json || false };
         directions = await this.raw(messages, enforcedJsonOptions);
