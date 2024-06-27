@@ -1,14 +1,12 @@
 import { prettyJSON } from "hono/pretty-json";
-import { Hono } from "hono";
+import { Hono, Context, Env } from "hono";
 import { etag } from "hono/etag";
 import { LLM } from "./llm";
 import { VM } from "./vm";
 import { KV } from "./kv";
 import { FS } from "./storage";
 import type { LLMOptions, llmProviders } from ".";
-import { Context, Env } from '../node_modules/hono/dist/types/index';
 
-export { Context, Env }; // Re-export for use in other modules
 
 
 export class Console extends Hono<Env> {
