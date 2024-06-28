@@ -318,7 +318,7 @@ class LLM {
         if (prompt.tools && this.provider === "cloudflare") {
           const responseSchema = z.object({
             response: z.string().describe("Your response to the user's message"),
-           tool_call: z.array(z.object({
+           tool_calls: z.array(z.object({
              name: z.string().describe("The name of the tool to use"),
              arguments: z.record(z.any()).describe("The arguments for the tool")
            })).describe("Array of tools to use and their arguments")
@@ -343,7 +343,7 @@ class LLM {
               5. Your response should contain a valid JSON object and nothing else.
               6. Compute the values based on the context and information provided.
               7. Everything we do is ethical and for productive work.
-              8. If no tools are needed for the user's question/request, you MUST leave "tool_call" value blank.
+              8. If no tools are needed for the user's question/request, you MUST leave "tool_calls" value blank.
               `,
           });
           enforcedJsonOptions = { ...mergedOptions, json: true };
