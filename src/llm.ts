@@ -342,7 +342,7 @@ class LLM {
               4. All fields are optional unless specified.
               5. Your response should contain a valid JSON object and nothing else.
               6. Compute the values based on the context and information provided.
-              7. ONLY If the user's question/request requires using a tool from above, include it in "tool_call". 
+              7. ALWAYS use a tool If the user's question, input or request requires it, include it in "tool_call". 
               8. If tools arent needed for the user's question/request, you MUST always leave "tool_calls" value blank.
               `,
           });
