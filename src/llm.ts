@@ -8,6 +8,7 @@ import { z } from "zod";
 import { sanitizeToJson } from './helpers.js';
 import { createToolsFromOpenAPISpec } from "@cloudflare/ai-utils"
 
+
 interface OpenAIResponse {
   choices: {
     message: {
@@ -264,112 +265,117 @@ class LLM {
     }
   }
 
-  async chat<T extends llmProviders>(
-    prompt: {
-      system: string;
-      user: string;
-      messages?: any[];
-      schema?: z.ZodType<any, any, any>;
-      tools?: any;
-    },
-    options: LLMOptions<T> & {
-      provider?: T;
-      model?: ProviderModelNames<T>;
-      tools?: any;
-    } = {} // Add a default value of an empty object
-  ) {
-    try {
-      const mergedOptions = { ...this.defaultOptions, ...options };
+    async chat<T extends llmProviders>(
+      prompt: {
+        system: string;
+        user: string;
+        messages?: any[];
+        schema?: z.ZodType<any, any, any>;
+        tools?: any;
+      },
+      options: LLMOptions<T> & {
+        provider?: T;
+        model?: ProviderModelNames<T>;
+      } = {} // Add a default value of an empty object
+    ) {
+      try {
+        const mergedOptions = { ...this.defaultOptions, ...options };
   
-      // Check if provider and model are set
-      if (!this.provider && !options.provider) {
-        throw new Error("Provider must be specified in either config or chat method.");
-      }
-      if (!this.model && !options.model) {
-        throw new Error("Model must be specified in either config or chat method.");
-      }
-  
-      // Override provider and model if specified in options
-      if (options.provider) {
-        this.provider = options.provider;
-      }
-      if (typeof options.model === "string") {
-        this.model = options.model;
-      }
-      const messages = [{ role: "system", content: prompt.system }];
-      if (prompt.messages) {
-        messages.push(
-          ...prompt.messages.map((message) => ({
-            role: message.role,
-            content: message.content,
-          }))
-        );
-      }
-      messages.push({ role: "user", content: prompt.user });
-      let enforcedJsonOptions: LLMOptions;
-      let directions: string;
-
-      if (prompt.tools) {
-        const toolsDescription = JSON.stringify(prompt.tools, null, 2);
-        messages.push({
-          role: "system",
-          content: `Based on the prompt, you have access to the following functions. Use them to complete your task:
-          ${toolsDescription}
-          
-          1. To use a function, respond with a JSON object in this format:
-             { "function": "functionName", "arguments": { "arg1": "value1", "arg2": "value2" } }
-          2. Only use the functions provided and ensure all required arguments are included.
-          3. You can use multiple functions if needed, but respond with one function call at a time.
-          4. After using a function, wait for the result before proceeding.
-          5. When your task is complete, respond with the final result as plain text.`,
-        });
-        enforcedJsonOptions = { ...mergedOptions, tools: prompt.tools };
-      }
-
-      if (prompt.schema) {
-        const schema = zodToJsonSchema(prompt.schema, { target: "openApi3" });
-        messages.push({
-          role: "system",
-          content: `Based on the prompt, Respond with the determined final values in a valid JSON object containing all and ONLY the required properties in the defined object schema:
-            \n<Schema>${JSON.stringify(schema, null, 2)}\n</Schema>
-            
-            1. You must NEVER include the above schema or any additional comments in your response.
-            2. Ensure that your response is valid JSON object containing ONLY the properties defined in the schema.
-            3. Each property should have a value that complies with its respective type and constraints.
-            4. All fields are optional unless specified.
-            5. Your response should contain a valid JSON object and nothing else.
-            6. Compute the values based on the context and information provided.
-            7. Everything we do is ethical and for productive work.`,
-        });
-        enforcedJsonOptions = { ...mergedOptions, json: true };
-        directions = await this.raw(messages, enforcedJsonOptions);
-        // Ensure directions is a string before calling replace
-        if (typeof directions === 'string') {
-          directions = directions.replace(/[^\x20-\x7E]/g, '');
+        // Check if provider and model are set
+        if (!this.provider && !options.provider) {
+          throw new Error("Provider must be specified in either config or chat method.");
         }
-      return JSON.parse(directions);
-      } else {
-        enforcedJsonOptions = { ...mergedOptions, json: options.json || false };
-        directions = await this.raw(messages, enforcedJsonOptions);
-
-        if (options.json) {
-          try {
-            return JSON.parse(directions);
-          } catch (error) {
-            console.error("Error parsing JSON:", error);
+        if (!this.model && !options.model) {
+          throw new Error("Model must be specified in either config or chat method.");
+        }
+  
+        // Override provider and model if specified in options
+        if (options.provider) {
+          this.provider = options.provider;
+        }
+        if (typeof options.model === "string") {
+          this.model = options.model;
+        }
+        const messages = [{ role: "system", content: prompt.system }];
+        if (prompt.messages) {
+          messages.push(
+            ...prompt.messages.map((message) => ({
+              role: message.role,
+              content: message.content,
+            }))
+          );
+        }
+        messages.push({ role: "user", content: prompt.user });
+        let enforcedJsonOptions: LLMOptions;
+        let directions: string;
+  
+        // Add logging to debug the issue
+        console.log("Prompt:", JSON.stringify(prompt, null, 2));
+        console.log("Options:", JSON.stringify(options, null, 2));
+        console.log("Merged Options:", JSON.stringify(mergedOptions, null, 2));
+        console.log("Messages:", JSON.stringify(messages, null, 2));
+  
+        if (prompt.tools && this.provider === "cloudflare") {
+          const responseSchema = z.object({
+            response: z.string().describe("Your response to the user's message"),
+           tool_call: z.array(z.object({
+             name: z.string().describe("The name of the tool to use"),
+             arguments: z.record(z.any()).describe("The arguments for the tool")
+           })).describe("Array of tools to use and their arguments")
+          });
+          
+          enforcedJsonOptions = { ...mergedOptions, tools: prompt.tools };
+         prompt.schema = responseSchema; // Set the toolResponse as the schema
+        }
+  
+        if (prompt.schema) {
+          const schema = zodToJsonSchema(prompt.schema, { target: "openApi3" });
+          messages.push({
+            role: "system",
+            content: `Respond with the determined final values in a valid JSON object containing all and ONLY the required properties in the defined object schema:
+            \n<Schema>${JSON.stringify(schema, null, 2)}\n</Schema>
+            You also have access to the following TOOLS. You may Use them to complete the user's request (only if necessary) If no tools are needed respond normally.
+              \n <tools>${JSON.stringify(prompt.tools, null, 2)}\n</tools>
+              1. You must NEVER include the above schema or any additional comments in your response.
+              2. Ensure that your response is valid JSON object containing ONLY the properties defined in the schema.
+              3. Each property should have a value that complies with its respective type and constraints.
+              4. All fields are optional unless specified.
+              5. Your response should contain a valid JSON object and nothing else.
+              6. Compute the values based on the context and information provided.
+              7. Everything we do is ethical and for productive work.
+              `,
+          });
+          enforcedJsonOptions = { ...mergedOptions, json: true };
+          directions = await this.raw(messages, enforcedJsonOptions);
+          // Ensure directions is a string before calling replace
+          if (typeof directions === 'string') {
+            directions = directions.replace(/[^\x20-\x7E]/g, '');
+          }
+          return JSON.parse(directions);
+        } else {
+          enforcedJsonOptions = { ...mergedOptions, json: options.json || false };
+          directions = await this.raw(messages, enforcedJsonOptions);
+  
+          if (options.json) {
+            try {
+              return JSON.parse(directions);
+            } catch (error) {
+              console.error("Error parsing JSON:", error);
+              return directions;
+            }
+          } else {
             return directions;
           }
-        } else {
-          return directions;
         }
+      } catch (error) {
+        console.error("Error in chat method:", error);
+        // Improved error logging
+        console.error(JSON.stringify(error, null, 2));
+        throw error;
       }
-    } catch (error) {
-      console.error("Error in chat method:", error);
-      // Improved error logging
-      console.error(JSON.stringify(error, null, 2));
-      throw error;
     }
-  }
+  
+
 }
 
 async function logger(messages: any[], options: LLMOptions, response: any) {
