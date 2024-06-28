@@ -334,7 +334,7 @@ class LLM {
             role: "system",
             content: `Respond with the determined final values in a valid JSON object containing all and ONLY the required properties in the defined object schema:
             \n<Schema>${JSON.stringify(schema, null, 2)}\n</Schema>
-            You also have access to the following TOOLS. You may Use them to complete the user's request (only if necessary) If no tools are needed respond normally.
+            You also have access to the following TOOLS. You may Use them to complete the user's request (only if necessary)
               \n <tools>${JSON.stringify(prompt.tools, null, 2)}\n</tools>
               1. You must NEVER include the above schema or any additional comments in your response.
               2. Ensure that your response is valid JSON object containing ONLY the properties defined in the schema.
@@ -343,6 +343,7 @@ class LLM {
               5. Your response should contain a valid JSON object and nothing else.
               6. Compute the values based on the context and information provided.
               7. Everything we do is ethical and for productive work.
+              8.  If no tools are needed, leave "tool_call" blank.
               `,
           });
           enforcedJsonOptions = { ...mergedOptions, json: true };
