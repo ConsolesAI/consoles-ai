@@ -1,5 +1,6 @@
 import { parseAsJSON } from '@acusti/parsing';
 
+
 export async function sanitizeToJson(contentText: string): Promise<string> {
   // If already JSON, return it
   try {
@@ -13,6 +14,21 @@ export async function sanitizeToJson(contentText: string): Promise<string> {
   // Trim whitespace from the ends
   contentText = contentText.trim();
 
+
+ 
+  // If it doesnt end in } 
+  // Find the last occurrence of '}'
+  let lastIndex = contentText.lastIndexOf('}');
+
+  // Slice the string up to the last '}'
+  let formattedString = contentText.slice(0, lastIndex + 1);
+
+  // If doesnt start with a { add one 
+  formattedString = formattedString.startsWith('{') ? formattedString : `{${formattedString}`;
+  
+  contentText = formattedString;
+  
+  // Existing checks...
   const parsedResult = parseAsJSON(contentText);
   if (parsedResult) {
     const parsedContent = JSON.stringify(parsedResult);
