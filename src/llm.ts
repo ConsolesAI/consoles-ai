@@ -337,12 +337,13 @@ class LLM {
             You also have access to the following TOOLS. You may Use them to complete the user's request (only if necessary)
               \n <tools>${JSON.stringify(prompt.tools, null, 2)}\n</tools>
               1. You must NEVER include the above schema or any additional comments in your response.
-              2. Ensure that your response is valid JSON object containing ONLY the properties defined in the schema.
+              2. Ensure that your response is valid JSON object containing ONLY and ALL the properties defined in the schema.
               3. Each property should have a value that complies with its respective type and constraints.
               4. All fields are optional unless specified.
               5. Your response should contain a valid JSON object and nothing else.
               6. Compute the values based on the context and information provided.
-              7. If the user's question/request requires using a tool from above, please include it as a tool_call. If no tools are needed for the user's question/request, you MUST leave "tool_calls" value blank.
+              7. ONLY If the user's question/request requires using a tool from above, include it in "tool_call". 
+              8. If no tools are needed for the user's specific question/request, you MUST leave "tool_calls" value blank.
               `,
           });
           enforcedJsonOptions = { ...mergedOptions, json: true };
