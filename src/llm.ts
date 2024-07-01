@@ -330,22 +330,13 @@ class LLM {
         console.log("Merged Options:", JSON.stringify(mergedOptions, null, 2));
         console.log("Messages:", JSON.stringify(messages, null, 2));
   
-        if (prompt.tools && this.provider === "cloudflare") {
-          const responseSchema = z.object({
-            response: z.string().describe("Your response to the user's message"),
-           tool_calls: z.array(z.object({
-             name: z.string().describe("The name of the tool to use"),
-             arguments: z.record(z.any()).describe("The arguments for the tool")
-           })).describe("Array of tools to use and their arguments")
-          });
-          
-          enforcedJsonOptions = { ...mergedOptions, tools: prompt.tools };
-         prompt.schema = responseSchema; // Set the toolResponse as the schema
-        }
+
   
         if (prompt.schema) {
-          const schema = zodToJsonSchema(prompt.schema, { target: "openApi3" });
-          messages.push({
+          // Check for which models support native function calling
+            
+            const schema = zodToJsonSchema(prompt.schema, { target: "openApi3" });
+            messages.push({
             role: "system",
             content: `You MUST ALWAYS Respond with the determined final values in a valid JSON object containing all the required properties in the following defined object schema:
             \n<schema_object>${JSON.stringify(schema, null, 2)}\n</schema_object>
