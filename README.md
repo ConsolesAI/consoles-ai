@@ -50,7 +50,7 @@ To get started with ConsoleAI, follow these steps:
      const prompt = {
        system: `You are a friendly assistant generating a simple greeting response.`,
        user: `Generate a response for the greeting: "${greeting}".`,
-       shcmea: greetingSchema
+       schema: greetingSchema
      };
      return await llm.chat(prompt, { model: 'gpt-3.5-turbo', temperature: 0.7, maxTokens: 50 });
    }
