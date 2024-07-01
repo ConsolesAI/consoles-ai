@@ -138,7 +138,7 @@ class LLM {
     messages.push({
       role: "assistant",
       content:
-        "Yes! I will NEVER return the schema, and I will always respond in VALID JSON WITh ALL the fiELDS IN thE SCHEMA. Here are the computed determined values in a fully valid JSON object based on the schema you provided above:\n{",
+        "Yes! I will NEVER return the schema, and I will always respond in valid JSON with all of the fields in the schema. Here are the computed determined values in a fully valid JSON object based on the schema you provided above:\n{",
     });
   }
       const response = await fetch(
