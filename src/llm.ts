@@ -13,6 +13,14 @@ interface OpenAIResponse {
   choices: {
     message: {
       content: string;
+      tool_calls?: {
+        id: string;
+        type: string;
+        function: {
+          name: string;
+          arguments: string;
+        };
+      }[];
     };
   }[];
 }
@@ -29,7 +37,7 @@ class LLM {
   defaultOptions: LLMOptions;
 
 
-  constructor(name: string, defaultOptions: Partial<LLMOptions> = {}) {
+  constructor(name: string = "", defaultOptions: Partial<LLMOptions> = {}) {
     this.name = name;
     this.provider = "";
     this.model = "";
@@ -75,6 +83,11 @@ class LLM {
       switch (this.provider) {
         case "openai":
           response = await this.openAIChat(messages, mergedOptions);
+          if (response.tool_calls) {
+            return response.tool_calls;
+          } else {
+            return response.content;
+          }
           break;
         case "anthropic":
           response = await this.claudeAIChat(messages, mergedOptions);
@@ -125,7 +138,7 @@ class LLM {
     messages.push({
       role: "assistant",
       content:
-        "You're right! I will NEVER return the schema! Here are the computed determined values in a valid JSON object based on the schema you provided:\n{",
+        "Yes! I will NEVER return the schema, and I will always respond in VALID JSON WITh ALL the fiELDS IN thE SCHEMA. Here are the computed determined values in a fully valid JSON object based on the schema you provided above:\n{",
     });
   }
       const response = await fetch(
@@ -231,7 +244,7 @@ class LLM {
       if (options.json) {
         messages.push({
           role: "system",
-          content: "Response in JSON format.",
+          content: "Respond in JSON format.",
         });
       }
       const response = await fetch(
@@ -251,14 +264,13 @@ class LLM {
             top_p: options.topP || 1,
             frequency_penalty: options.frequencyPenalty || 0,
             presence_penalty: options.presencePenalty || 0,
+            tools: options.tools || []
           }),
         }
       );
-
       const data = (await response.json()) as OpenAIResponse;
      logger(messages, options, data);
-     
-      return data.choices[0].message.content;
+      return data.choices[0].message;
     } catch (error) {
       console.error("Error in openAIChat method:", error);
       throw error;
@@ -332,20 +344,16 @@ class LLM {
           const schema = zodToJsonSchema(prompt.schema, { target: "openApi3" });
           messages.push({
             role: "system",
-            content: `Respond with the determined final values in a valid JSON object containing all and ONLY the required properties in the defined object schema:
-            \n<Schema>${JSON.stringify(schema, null, 2)}\n</Schema>
-            You have access to the following TOOLS. You may Use them in your response only if necessary for the user's question/request.
-              \n <tools>${JSON.stringify(prompt.tools, null, 2)}\n</tools>
-              1. You must NEVER include the above schema or any additional comments in your response.
-              2. Ensure that your response is valid JSON object containing ONLY and ALL the properties defined in the schema.
-              3. Each property should have a value that complies with its respective type and constraints.
-              4. All fields are optional unless specified.
-              5. Your response should contain a valid JSON object and nothing else.
-              6. Compute the values based on the context and information provided.
-              7. ALWAYS use a tool If the user's question, input or request requires it, include it in "tool_call". 
-              8. If tools arent needed for the user's question/request, you MUST always leave "tool_calls" value blank.
-              `,
+            content: `You MUST ALWAYS Respond with the determined final values in a valid JSON object containing all the required properties in the following defined object schema:
+            \n<schema_object>${JSON.stringify(schema, null, 2)}\n</schema_object>
+              2. You must NEVER include the above schema or any additional comments in your response.
+              3. Ensure that your response is valid JSON object containing ONLY and ALL the properties defined in the schema.
+              4. Each property should have a value that cosmplies with its respective type and constraints.
+              5. All fields are optional unless specified.
+              6. Your response should contain the full valid JSON object and nothing else.
+              7. Compute the values based on the context and information provided.`,
           });
+       
           enforcedJsonOptions = { ...mergedOptions, json: true };
           directions = await this.raw(messages, enforcedJsonOptions);
           // Ensure directions is a string before calling replace
@@ -354,9 +362,12 @@ class LLM {
           }
           return JSON.parse(directions);
         } else {
-          enforcedJsonOptions = { ...mergedOptions, json: options.json || false };
+          enforcedJsonOptions = { 
+            ...mergedOptions, 
+            json: options.json || false, 
+            ...(options.tools && { tools: options.tools }) 
+          };
           directions = await this.raw(messages, enforcedJsonOptions);
-  
           if (options.json) {
             try {
               return JSON.parse(directions);
