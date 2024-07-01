@@ -14,7 +14,18 @@ export async function sanitizeToJson(contentText: string): Promise<string> {
   // Trim whitespace from the ends
   contentText = contentText.trim();
 
+// If it contains a colon and doesn't start with '{' or end with '}'
+if (contentText.includes(':') && (!contentText.startsWith('{') || !contentText.endsWith('}'))) {
+  console.log(`Sanitizing JSON - Adding missing brackets`);
+  contentText = contentText.startsWith('{') ? contentText : `{${contentText}`;
+  contentText = contentText.endsWith('}') ? contentText : `${contentText}}`;
 
+   // If it doesn't end in '}'
+   let lastIndex = contentText.lastIndexOf('}');
+   let formattedString = contentText.slice(0, lastIndex + 1);
+   formattedString = formattedString.startsWith('{') ? formattedString : `{${formattedString}`;
+   contentText = formattedString;
+}
  
   // If it doesnt end in } 
   // Find the last occurrence of '}'
@@ -27,7 +38,7 @@ export async function sanitizeToJson(contentText: string): Promise<string> {
   formattedString = formattedString.startsWith('{') ? formattedString : `{${formattedString}`;
   
   contentText = formattedString;
-  
+
   // Existing checks...
   const parsedResult = parseAsJSON(contentText);
   if (parsedResult) {

@@ -41,6 +41,7 @@ export const ProviderModels = {
     '@hf/nousresearch/hermes-2-pro-mistral-7b',
     '@hf/thebloke/llama-2-13b-chat-awq',
     '@cf/meta-llama/llama-2-7b-chat-hf-lora',
+    '@hf/meta-llama/meta-llama-3-8b-instruct',
     '@cf/meta/llama-3-8b-instruct',
     '@cf/meta/llama-3-8b-instruct-awq',
     '@hf/thebloke/llamaguard-7b-awq',
