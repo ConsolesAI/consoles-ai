@@ -167,7 +167,10 @@ class LLM {
         if (sanitizedContent) {
           return sanitizedContent;
         } else {
-          return JSON.stringify({ error: "Invalid JSON format", originalMessage: contentText });
+          console.log("Invalid JSON format, retrying request...");
+          return await this.cloudflareAIChat(messages, options);
+        
+          
         }
       } else {
         return contentText;
