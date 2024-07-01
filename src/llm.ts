@@ -6,7 +6,7 @@ import type {
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { z } from "zod";
 import { sanitizeToJson } from './helpers.js';
-import { createToolsFromOpenAPISpec } from "@cloudflare/ai-utils"
+// import { createToolsFromOpenAPISpec } from "@cloudflare/ai-utils"
 
 
 interface OpenAIResponse {
