@@ -13,9 +13,7 @@ export const extractMatches = (regex, content, type) => {
   while ((match = regex.exec(content)) !== null) {
     if (type === "endpoint") {
       matches.push({ method: match[1], route: match[2] });
-    } else if (type === "llm") {
-      matches.push({ name: match[1] });
-    }
+    } 
   }
   return matches;
 };
@@ -69,9 +67,10 @@ export const deployProject = async () => {
     process.exit(0); // Exit the process
   }
 
-  const projectName = projectNameMatch[1];
+  const projectName = projectNameMatch[1].toLowerCase();
+  const workSpace = projectNameMatch[2].toLowerCase();
   const bundleDir = path.join(projectRoot, "built");
-  const bundlePath = path.join(bundleDir, `${projectName}_bundle.mjs`);
+  const bundlePath = path.join(bundleDir, `${projectName}.mjs`);
 
   if (!fs.existsSync(bundleDir)) {
     fs.mkdirSync(bundleDir);
@@ -89,18 +88,28 @@ if (!fs.existsSync(envPath)) {
   
 // Use the readEnvFile function from file.js
 const envVars = await readEnvFile(envPath);
-const apiKey = envVars.API_KEY;
 
-if (!apiKey) {
-  log.error(
-    chalk.red(`   The API_KEY is not defined in the .consoles.env file!\n`)
-  );
-  process.exit(0); // Exit the process
-}
+
 
   let modifiedFileContent = fileContent;
 
   const apiKeyRegex = /new Console\(['"]([^'"]+)['"](?:,\s*['"]([^'"]+)['"]|\s*,\s*\{.*?apiKey:\s*['"]([^'"]+)['"].*?\})?\);/;
+
+  let apiKey = envVars.API_KEY;
+  
+  if (!apiKey) {
+    const apiKeyMatch = fileContent.match(apiKeyRegex);
+    if (apiKeyMatch) {
+      apiKey = apiKeyMatch[3];
+    }
+  }
+  
+  if (!apiKey) {
+    log.error(
+      chalk.red(`   The API_KEY is not defined in the .consoles.env file or in the entry script!\n`)
+    );
+    process.exit(0); // Exit the process
+  }
 
   if (!apiKeyRegex.test(fileContent)) {
     modifiedFileContent = fileContent.replace(
@@ -146,11 +155,7 @@ if (!apiKey) {
       bundleContent,
       "endpoint"
     );
-    const llms = extractMatches(
-      /app\.llm\s*\(\s*['"`](.*?)['"`]\s*\)/g,
-      bundleContent,
-      "llm"
-    );
+  
 
     log.info("├── ✨ Deploying to cloud...");
 
@@ -170,9 +175,8 @@ if (!apiKey) {
         id: crypto.randomBytes(3).toString("hex"),
         deploymentId: crypto.randomBytes(3).toString("hex"),
         projectName: projectName,
-        workspace: "cosmo",
-        endpoints: endpoints,
-        llm: llms,
+        workSpace: "rob",
+        endpoints: endpoints
       },
     };
     log.info("├── 🌍 Deployment completed.");

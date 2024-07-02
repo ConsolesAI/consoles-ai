@@ -28,14 +28,14 @@ export const deployCommand = async (entryScript = "console.ts") => {
   try {
     const result = await deployProject(entryScript);
 
-    log.info("View Console Deployment:");
+    log.info("\nDeployment Details:");
     console.log(
       chalk.underline.cyan(
-        `https://app.consoles.ai/${result.workspace}/${result.projectName}/d/${result.deploymentId}\n`
+        `https://app.consoles.ai/${result.workSpace}/${result.projectName}/d/${result.deploymentId}\n`
       )
     );
 
-    const consoleUrl = `https://${result.projectName}.cosmo.consoles.ai`;
+    const consoleUrl = `https://${result.projectName}.${result.workSpace}.cnsl.dev`;
 
     log.info("Endpoints:");
     if (result.endpoints && result.endpoints.length > 0) {
@@ -67,16 +67,6 @@ export const deployCommand = async (entryScript = "console.ts") => {
       console.log(chalk.grey("└─ No endpoints found."));
     }
 
-    log.info("LLMS:");
-    if (result.llm && result.llm.length > 0) {
-      result.llm.forEach((llm) => {
-        if (llm && llm.name) {
-          console.log(chalk.grey(`├─ ${chalk.cyan(llm.name)}`));
-        }
-      });
-    } else {
-      console.log(chalk.grey("└─ No registered LLMs found."));
-    }
 
     log.success("\nConsole successfully deployed! 🎉✨\n");
     process.exit(0);
