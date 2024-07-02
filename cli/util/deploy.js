@@ -18,6 +18,7 @@ export const extractMatches = (regex, content, type) => {
   return matches;
 };
 
+
 export const deployProject = async () => {
   const projectRoot = process.cwd();
   const srcDir = path.join(projectRoot, 'src');
@@ -155,6 +156,8 @@ const envVars = await readEnvFile(envPath);
       bundleContent,
       "endpoint"
     );
+
+    await generateDeployStub(projectName, workSpace, endpoints, bundleContent);
   
 
     log.info("├── ✨ Deploying to cloud...");
