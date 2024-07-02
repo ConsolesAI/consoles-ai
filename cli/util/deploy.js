@@ -29,18 +29,18 @@ export const deployProject = async () => {
   log.info("├── 🔨 Building your project...");
 
   if (!fs.existsSync(entryScript)) {
-    throw new Error(
+    log.error(
       chalk.yellow.italic(
         `   The entry script '${chalk.cyan(entryScript)}' does not exist!\n`
       )
     );
+    process.exit(0); // Exit the process
   }
 
   const fileContent = fs.readFileSync(entryScript, "utf8");
-  const projectNameMatch = fileContent.match(/new Console\('([^']+)'(?:,\s*'([^']+)')?\)/);
-
+  const projectNameMatch = fileContent.match(/new Console\(['"]([^'"]+)['"](,\s*['"]([^'"]+)['"]|\s*,\s*\{.*?\})?\);/);
   if (!projectNameMatch) {
-    throw new Error(
+    log.error(
       chalk.italic.yellow(
         `   No 'Console' instance found in the entry script '${chalk.cyan(
           entryScript
@@ -65,8 +65,10 @@ export const deployProject = async () => {
         chalk.italic.gray(
           "╰────────────────────────────────────────────────╯\n"
         )
-    );
+    ); 
+    process.exit(0); // Exit the process
   }
+
   const projectName = projectNameMatch[1];
   const bundleDir = path.join(projectRoot, "built");
   const bundlePath = path.join(bundleDir, `${projectName}_bundle.mjs`);
@@ -77,27 +79,38 @@ export const deployProject = async () => {
 
   const homeDir = os.homedir();
   const envPath = path.join(homeDir, ".consoles.env");
-  if (!fs.existsSync(envPath)) {
-    throw new Error(
-      chalk.red(`   The .consoles.env file does not exist at ${chalk.cyan(envPath)}!\n`)
-    );
-  }
+
+if (!fs.existsSync(envPath)) {
+  log.error(
+    chalk.red(`   The .consoles.env file does not exist at ${chalk.cyan(envPath)}!\n`)
+  );
+  process.exit(0); // Exit the process
+}
   
 // Use the readEnvFile function from file.js
 const envVars = await readEnvFile(envPath);
 const apiKey = envVars.API_KEY;
+
 if (!apiKey) {
-  throw new Error(
+  log.error(
     chalk.red(`   The API_KEY is not defined in the .consoles.env file!\n`)
   );
+  process.exit(0); // Exit the process
 }
 
   let modifiedFileContent = fileContent;
 
-  const apiKeyRegex = /new Console\('([^']+)'\s*,\s*'([^']+)'\);/;
+  const apiKeyRegex = /new Console\(['"]([^'"]+)['"](?:,\s*['"]([^'"]+)['"]|\s*,\s*\{.*?apiKey:\s*['"]([^'"]+)['"].*?\})?\);/;
+
   if (!apiKeyRegex.test(fileContent)) {
     modifiedFileContent = fileContent.replace(
-      /new Console\('([^']+)'\);/,
+      /new Console\(['"]([^'"]+)['"]\);/,
+      `new Console('$1', { apiKey: '${apiKey}' });`
+    ).replace(
+      /new Console\(['"]([^'"]+)['"],\s*\{(.*?)\}\);/,
+      `new Console('$1', { $2, apiKey: '${apiKey}' });`
+    ).replace(
+      /new Console\(['"]([^'"]+)['"],\s*['"]([^'"]+)['"]\);/,
       `new Console('$1', '${apiKey}');`
     );
   }
