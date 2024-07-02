@@ -283,7 +283,7 @@ class LLM {
     async chat<T extends llmProviders>(
       prompt: {
         system: string;
-        user: string;
+        user?: string;
         messages?: any[];
         schema?: z.ZodType<any, any, any>;
         tools?: any;
@@ -320,7 +320,9 @@ class LLM {
             }))
           );
         }
-        messages.push({ role: "user", content: prompt.user });
+        if (prompt.user !== null) {
+          messages.push({ role: "user", content: prompt.user });
+        }
         let enforcedJsonOptions: LLMOptions;
         let directions: string;
   
@@ -330,7 +332,7 @@ class LLM {
         console.log("Merged Options:", JSON.stringify(mergedOptions, null, 2));
         console.log("Messages:", JSON.stringify(messages, null, 2));
   
-
+  
   
         if (prompt.schema) {
           // Check for which models support native function calling
