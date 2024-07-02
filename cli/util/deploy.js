@@ -113,7 +113,7 @@ if (!apiKey) {
       external: [], // Ensure no modules are treated as external
       minify: false,
       sourcemap: false,
-      format: "cjs",
+      format: "esm", // Change this line to use ESModule format
       target: ["es2020"],
       loader: { ".ts": "ts" },
       tsconfig: path.join(projectRoot, "tsconfig.json"),
