@@ -35,7 +35,7 @@ export const deployCommand = async (entryScript = "console.ts") => {
       )
     );
 
-    const consoleUrl = `https://${result.projectName}.${result.workSpace}.cnsl.dev`;
+    const consoleUrl = `https://${result.projectName}-${result.workSpace}.cnsl.dev`;
 
     log.info("Endpoints:");
     if (result.endpoints && result.endpoints.length > 0) {
