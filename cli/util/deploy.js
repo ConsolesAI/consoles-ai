@@ -157,7 +157,6 @@ const envVars = await readEnvFile(envPath);
       "endpoint"
     );
 
-    await generateDeployStub(projectName, workSpace, endpoints, bundleContent);
   
 
     log.info("├── ✨ Deploying to cloud...");
