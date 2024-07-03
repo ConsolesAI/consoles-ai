@@ -150,7 +150,6 @@ const envVars = await readEnvFile(envPath);
       fs.rmSync(nodeModulesPath, { recursive: true, force: true });
     }
   
-
     const endpoints = extractMatches(
       /app\.(get|post|put|delete|patch)\(['"`](.*?)['"`]/g,
       bundleContent,
