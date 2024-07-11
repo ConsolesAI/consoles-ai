@@ -23,6 +23,7 @@ To get started with ConsoleAI, follow these steps:
 2. Import the `LLM` class from the `consoles-ai` package in your project:
    ```javascript
    import { LLM } from 'consoles-ai';
+   import { z } from 'zod';
    ```
 
 3. Configure the `LLM` instance in your code.
