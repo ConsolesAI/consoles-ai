@@ -1,4 +1,4 @@
-## Overview
+![image](https://github.com/user-attachments/assets/2c5cfbe0-cbcf-4929-a3eb-8da1471f873d)## Overview
 
 Consoles is a simple and lightweight framework for developing backends and interacting with LLMs, giving them access to structured prompting, code execution, and other tools. It offers a seamless interface for interacting with various AI providers, including OpenAI, Anthropic, and Cloudflare, ensuring efficient resource management and cost calculation.
 
@@ -142,4 +142,7 @@ The `consolesai` package supports a variety of providers and models for Large La
 
 This list is subject to change as new models and providers are added to the `consolesai` package. Always refer to the latest documentation for the most up-to-date information.
 
+### CLI For Consoles Cloud
+
+![alt text](https://i.imgur.com/582jvCe.png)
 
