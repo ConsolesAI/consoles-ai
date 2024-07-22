@@ -144,5 +144,7 @@ This list is subject to change as new models and providers are added to the `con
 
 ### CLI For Consoles Cloud
 
+Use our CLI tool to initiate new project,deploy your code to the cloud, and more
+
 ![alt text](https://i.imgur.com/582jvCe.png)
 
