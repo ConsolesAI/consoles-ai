@@ -142,9 +142,56 @@ The `consolesai` package supports a variety of providers and models for Large La
 
 This list is subject to change as new models and providers are added to the `consolesai` package. Always refer to the latest documentation for the most up-to-date information.
 
-### CLI For Consoles Cloud
-
-Use our CLI tool to initiate new project,deploy your code to the cloud, and more
-
+# Consoles AI CLI
 ![alt text](https://i.imgur.com/582jvCe.png)
+
+This tool provides a set of commands to help you manage and deploy your Consoles AI projects with ease.
+
+## Installation
+
+Install the Consoles AI CLI globally using npm:
+```bash
+npm install -g consoles-a
+```
+
+## Available Commands
+
+- `init`: Initialize a new Consoles AI project
+- `setup`: Set up your Consoles AI environment
+- `deploy`: Deploy your project to the Consoles AI cloud
+- `run`: Execute a script in the Consoles AI cloud environment
+- `kv`: Manage your Key-Value store
+- `secrets`: Manage your Secret Spaces for secure environment variables
+- `help`: Display help information
+- `version`: Check the current CLI version
+
+## Usage
+bash
+consoles <command> [options]
+
+
+### Examples
+bash
+consoles init
+consoles setup
+consoles deploy [entry_script]
+consoles run <script>
+consoles kv [action] [namespace] [key] [value]
+consoles secrets [action] [space] [key] [value]
+consoles help
+consoles -v
+
+
+## Getting Started
+1. Install the CLI globally using npm
+2. Run `consoles init` to create a new project
+3. Use `consoles setup` to configure your environment
+4. Develop your project using Consoles AI features
+5. When ready, use `consoles deploy` to push your project to the cloud
+
+## Support
+
+For more information and detailed documentation, visit our website or reach out to our support team.
+
+Happy coding with Consoles AI! 🚀✨
 
