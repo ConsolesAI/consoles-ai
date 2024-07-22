@@ -151,7 +151,7 @@ This tool provides a set of commands to help you manage and deploy your Consoles
 
 Install the Consoles AI CLI globally using npm:
 ```bash
-npm install -g consoles-a
+npm install -g consoles-ai
 ```
 
 ## Available Commands
