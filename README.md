@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/2c5cfbe0-cbcf-4929-a3eb-8da1471f873d)## Overview
+## Overview
 
 Consoles is a simple and lightweight framework for developing backends and interacting with LLMs, giving them access to structured prompting, code execution, and other tools. It offers a seamless interface for interacting with various AI providers, including OpenAI, Anthropic, and Cloudflare, ensuring efficient resource management and cost calculation.
 
