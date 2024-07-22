@@ -166,12 +166,13 @@ npm install -g consoles-ai
 - `version`: Check the current CLI version
 
 ## Usage
-bash
+```bash
 consoles <command> [options]
+```
 
 
 ### Examples
-bash
+```bash
 consoles init
 consoles setup
 consoles deploy [entry_script]
@@ -180,6 +181,7 @@ consoles kv [action] [namespace] [key] [value]
 consoles secrets [action] [space] [key] [value]
 consoles help
 consoles -v
+```
 
 
 ## Getting Started
