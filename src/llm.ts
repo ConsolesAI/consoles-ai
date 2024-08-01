@@ -250,6 +250,24 @@ class LLM {
           content: "Respond in JSON format.",
         });
       }
+      const requestBody: any = {
+        model: this.model,
+        messages,
+        temperature: options.temperature || 0.5,
+        max_tokens: options.maxTokens || 100,
+        top_p: options.topP || 1,
+        frequency_penalty: options.frequencyPenalty || 0,
+        presence_penalty: options.presencePenalty || 0,
+      };
+
+      if (options.json) {
+        requestBody.response_format = { type: "json_object" };
+      }
+
+      if (options.tools && options.tools.length > 0) {
+        requestBody.tools = options.tools;
+      }
+
       const response = await fetch(
         "https://api.openai.com/v1/chat/completions",
         {
@@ -258,21 +276,11 @@ class LLM {
             "Content-Type": "application/json",
             Authorization: `Bearer ${options.keys?.openai}`,
           },
-          body: JSON.stringify({
-            response_format: options.json ? { type: "json_object" } : undefined,
-            model: this.model,
-            messages,
-            temperature: options.temperature || 0.5,
-            max_tokens: options.maxTokens || 100,
-            top_p: options.topP || 1,
-            frequency_penalty: options.frequencyPenalty || 0,
-            presence_penalty: options.presencePenalty || 0,
-            tools: options.tools || []
-          }),
+          body: JSON.stringify(requestBody),
         }
       );
       const data = (await response.json()) as OpenAIResponse;
-     logger(messages, options, data);
+      logger(messages, options, data);
       return data.choices[0].message;
     } catch (error) {
       console.error("Error in openAIChat method:", error);
