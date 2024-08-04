@@ -1,5 +1,6 @@
 import { prettyJSON } from "hono/pretty-json";
 import { Hono, Context, Env } from "hono";
+import { cors as honoCors } from 'hono/cors'
 import { etag } from "hono/etag";
 import { LLM } from "./llm";
 import { VM } from "./vm";
@@ -7,7 +8,8 @@ import { KV } from "./kv";
 import { FS } from "./storage";
 import type { LLMOptions, llmProviders } from ".";
 
-
+// Export cors function to be used by Console users
+export const cors = honoCors;
 
 export class Console extends Hono<Env> {
   private currentContext: Context | null = null;
@@ -132,4 +134,3 @@ export class Console extends Hono<Env> {
     return new FS(() => this.getCurrentContext()!, this.name, this.apiKey!);
   }
 }
-
