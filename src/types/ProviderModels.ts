@@ -1,6 +1,7 @@
 export const ProviderModels = {
   openai: [
     'gpt-4o',
+    'gpt-4o-mini',
     'gpt-4-turbo',
     'gpt-4',
     'gpt-3.5-turbo',
@@ -27,6 +28,7 @@ export const ProviderModels = {
   cohere: [],
   google: [],
   cloudflare: [
+    '@cf/meta/llama-3.1-8b-instruct',
     '@cf/meta/llama-2-7b-chat-fp16',
     '@cf/mistral/mistral-7b-instruct-v0.1',
     '@cf/thebloke/deepseek-coder-6.7b-base-awq',
