@@ -130,19 +130,13 @@ const podcast = await consoles.extract({
 
 ## Coming Soon
 
-- Browsers
-- Computers
-- ????
-- ????
+- browsers
+- computers
+- more
 
 ## Documentation
 
-Visit our [documentation](https://docs.consoles.ai) for:
-- Full API reference
-- Input types (URL, File, Text)
-- Schema validation (Zod & JSON Schema)
-- Usage & monitoring
-- Advanced examples
+Visit our [documentation](https://docs.consoles.ai) for more information.
 
 ## Links
 
