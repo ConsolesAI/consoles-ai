@@ -17,6 +17,20 @@ const data = await consoles.extract({
   content: 'The iPhone 15 Pro costs $999',
   schema: { type: 'object', properties: { price: { type: 'number' } } }
 });
+
+// Response:
+// {
+//   status: 'success',
+//   result: { price: 999 },
+//   usage: {
+//     input_tokens: 9,
+//     output_tokens: 4,
+//     total_tokens: 13,
+//     input_cost: "0.0001",
+//     output_cost: "0.0001",
+//     total_cost: "0.0002"
+//   }
+// }
 ```
 
 ## Examples
@@ -42,6 +56,25 @@ const financials = await consoles.extract({
   schema: financialMetrics,
   prompt: 'Extract the key financial metrics from FY2023'
 });
+
+// Response:
+// {
+//   status: 'success',
+//   result: {
+//     revenue: 26974,
+//     netIncome: 4368,
+//     gpuRevenue: 22035,
+//     operatingExpenses: 7047
+//   },
+//   usage: {
+//     input_tokens: 4537,
+//     output_tokens: 21,
+//     total_tokens: 4558,
+//     input_cost: "0.0057",
+//     output_cost: "0.0001",
+//     total_cost: "0.0058"
+//   }
+// }
 ```
 
 ### Media Processing
@@ -63,6 +96,36 @@ const podcast = await consoles.extract({
   },
   schema: podcastSchema
 });
+
+// Response:
+// {
+//   status: 'success',
+//   result: {
+//     topics: [
+//       "AI Safety",
+//       "Neural Networks",
+//       "Future of Computing"
+//     ],
+//     keyMoments: [
+//       {
+//         timestamp: "00:05:30",
+//         summary: "Discussion on transformer architecture"
+//       },
+//       {
+//         timestamp: "00:15:45",
+//         summary: "Debate about AI regulation"
+//       }
+//     ]
+//   },
+//   usage: {
+//     input_tokens: 8842,
+//     output_tokens: 89,
+//     total_tokens: 8931,
+//     input_cost: "0.0111",
+//     output_cost: "0.0004",
+//     total_cost: "0.0115"
+//   }
+// }
 ```
 
 ## Coming Soon
