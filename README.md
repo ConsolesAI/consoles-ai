@@ -4,7 +4,7 @@ Consoles gives AI applications access to infrastructure and enhanced capabilitie
 
 ## Available APIs
 
-### Extract (Available Now)
+### Extract
 Transform any content into structured data with AI.
 
 #### Installation
@@ -196,10 +196,10 @@ const chapters = await consoles.extract({
 }
 ```
 
-### Browser (Coming Soon)
+### Browser
 Managed browser automation at scale.
 
-### Compute (Coming Soon)
+### Computer
 On-demand compute resources for AI workloads.
 
 ## Documentation
