@@ -14,12 +14,12 @@ import { z } from 'zod';
 
 const consoles = new Console('key');
 
-// Using Zod schema
+// Using Zod schema with descriptions
 const productSchema = z.object({
-  name: z.string(),
-  price: z.number(),
-  description: z.string(),
-  inStock: z.boolean().optional()
+  name: z.string().describe('Product name'),
+  price: z.number().describe('Price in USD'),
+  description: z.string().describe('Product description'),
+  inStock: z.boolean().optional().describe('Current availability status')
 });
 
 const data = await consoles.extract({
@@ -62,24 +62,43 @@ const financials = await consoles.extract({
   schema: {
     type: 'object',
     properties: {
-      revenue: { type: 'number' },
-      netIncome: { type: 'number' },
-      gpuRevenue: { type: 'number' }
+      revenue: { type: 'number', description: 'Total revenue in millions USD' },
+      netIncome: { type: 'number', description: 'Net income in millions USD' },
+      gpuRevenue: { type: 'number', description: 'Revenue from GPU segment' }
     },
     required: ['revenue', 'netIncome']
   },
   prompt: 'Extract the key financial metrics from FY2023'
 });
+
+// Response:
+// {
+//   status: 'success',
+//   result: {
+//     revenue: 26974,
+//     netIncome: 4368,
+//     gpuRevenue: 22035
+//   },
+//   usage: {
+//     input_tokens: 4537,
+//     output_tokens: 21,
+//     total_tokens: 4558,
+//     total_cost: "0.0058"
+//   }
+// }
 ```
 
 ### Media Processing
 ```typescript
+// Extract podcast insights
 const podcastSchema = z.object({
-  topics: z.array(z.string()),
-  keyMoments: z.array(z.object({
-    timestamp: z.string(),
-    summary: z.string()
-  }))
+  topics: z.array(z.string()).describe('Main topics discussed in the podcast'),
+  keyMoments: z.array(
+    z.object({
+      timestamp: z.string().describe('Timestamp in HH:MM:SS format'),
+      summary: z.string().describe('Brief summary of the key moment')
+    })
+  ).describe('Important moments with timestamps')
 });
 
 const podcast = await consoles.extract({
@@ -90,6 +109,78 @@ const podcast = await consoles.extract({
   },
   schema: podcastSchema
 });
+
+// Response:
+// {
+//   status: 'success',
+//   result: {
+//     topics: [
+//       "AI Safety",
+//       "Neural Networks",
+//       "Future of Computing"
+//     ],
+//     keyMoments: [
+//       {
+//         timestamp: "00:05:30",
+//         summary: "Discussion on transformer architecture"
+//       },
+//       {
+//         timestamp: "00:15:45",
+//         summary: "Debate about AI regulation"
+//       }
+//     ]
+//   },
+//   usage: {
+//     input_tokens: 8842,
+//     output_tokens: 89,
+//     total_tokens: 8931,
+//     total_cost: "0.0115"
+//   }
+// }
+
+// Generate YouTube chapters
+const chapterSchema = z.array(
+  z.object({
+    timestamp: z.string().describe('Chapter start time in HH:MM:SS format'),
+    title: z.string().describe('Short, descriptive chapter title'),
+    summary: z.string().describe('Detailed description of chapter content')
+  })
+).describe('Video chapters with timestamps and descriptions');
+
+const chapters = await consoles.extract({
+  type: 'url',
+  content: 'https://youtube.com/watch?v=example',
+  schema: chapterSchema,
+  prompt: 'Generate detailed chapter markers with timestamps and summaries'
+});
+
+// Response:
+// {
+//   status: 'success',
+//   result: [
+//     {
+//       timestamp: "00:00:00",
+//       title: "Introduction",
+//       summary: "Overview of topics and speaker introduction"
+//     },
+//     {
+//       timestamp: "00:02:15",
+//       title: "Core Concepts",
+//       summary: "Explanation of fundamental principles and key terminology"
+//     },
+//     {
+//       timestamp: "00:15:30",
+//       title: "Real World Applications",
+//       summary: "Practical examples and use cases in production environments"
+//     }
+//   ],
+//   usage: {
+//     input_tokens: 3245,
+//     output_tokens: 156,
+//     total_tokens: 3401,
+//     total_cost: "0.0043"
+//   }
+// }
 ```
 
 ## Coming Soon
