@@ -7,27 +7,35 @@ import glob from 'glob';
 
 const args = arg({
   '--watch': Boolean,
+  '--force': Boolean,
 });
 
 const isWatch = args['--watch'] || false;
-
+const isForce = args['--force'] || false;
 
 function removeDir(dirPath: string) {
-    if (fs.existsSync(dirPath)) {
-      fs.readdirSync(dirPath).forEach((file) => {
-        const filePath = path.join(dirPath, file);
-        if (fs.lstatSync(filePath).isDirectory()) {
-          removeDir(filePath);
-        } else {
-          fs.unlinkSync(filePath);
-        }
-      });
-      fs.rmdirSync(dirPath);
-    }
+  if (!fs.existsSync(dirPath)) {
+    return;
   }
   
+  if (!isForce) {
+    const stat = fs.statSync(dirPath);
+    if (stat.isDirectory() && fs.readdirSync(dirPath).length > 0) {
+      console.warn(`Warning: ${dirPath} is not empty. Use --force to overwrite.`);
+      return;
+    }
+  }
 
-  
+  fs.readdirSync(dirPath).forEach((file) => {
+    const filePath = path.join(dirPath, file);
+    if (fs.lstatSync(filePath).isDirectory()) {
+      removeDir(filePath);
+    } else {
+      fs.unlinkSync(filePath);
+    }
+  });
+  fs.rmdirSync(dirPath);
+}
 
 const entryPoints = glob.sync('./src/**/*.ts', {
   ignore: ['./src/**/*.test.ts', './src/mod.ts', './src/middleware.ts', './src/deno/**/*.ts'],
