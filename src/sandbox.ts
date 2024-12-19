@@ -1,5 +1,4 @@
-// Define the VM class
-export class VM {
+export class Sandbox {
   name: string;
   configOptions: Record<string, any>;
 
@@ -8,21 +7,15 @@ export class VM {
     this.configOptions = {};
   }
 
-  config(options: Record<string, any>): VM {
-    const validFields = ['cpu', 'memory', 'apt', 'pip', 'image', 'gpu', 'mounts'];
-    const defaultValues = { cpu: 0.5, memory: 512 };
+  config(options: Record<string, any>): Sandbox {
+    const validFields = ['cpu', 'memory', 'apt', 'pip', 'gpu', 'language', 'npm'];
+    const defaultValues = { cpu: 0.125, memory: 128, language: 'python' };
     
     if (!options || typeof options !== 'object') {
       throw new Error('Invalid configuration options provided.');
     }
 
-    // Handle empty image
-    if (options.image === '') delete options.image;
-    
-    // Enforce minimum CPU
-    if (options.cpu && options.cpu < 0.5) options.cpu = 0.5;
-
-    // Validate GPU config if present
+    // Parse GPU config if present
     if (options.gpu) {
       this._validateGpuConfig(options.gpu);
     }
@@ -59,7 +52,7 @@ export class VM {
       },
       body: JSON.stringify({ 
         code,
-        configuration: this.configOptions
+        configuration: this.configOptions,
       }),
     });
 
@@ -75,51 +68,13 @@ export class VM {
     return {
       stream: reader,
       async kill() {
+        // TODO: Implement kill functionality
         await fetch('https://shell.consoles.ai/kill', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           }
         });
-      }
-    };
-  }
-
-  async initSSH(options: {
-    username: string;
-    password: string;
-    timeout?: number;
-  }) {
-    const response = await fetch('https://shell.consoles.ai/ssh', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ...this.configOptions,
-        ...options
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to initialize SSH: ${response.statusText}`);
-    }
-    
-    const { hostname, port } = await response.json();
-    
-    return {
-      connectionString: `ssh -o StrictHostKeyChecking=no -p ${port} ${options.username}@${hostname}`,
-      async kill() {
-        const killResponse = await fetch('https://shell.consoles.ai/ssh/kill', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (!killResponse.ok) {
-          throw new Error(`Failed to kill SSH session: ${killResponse.statusText}`);
-        }
       }
     };
   }

@@ -100,7 +100,9 @@ removeDir('./dist');
 // Generate type declarations first
 exec(`tsc ${isWatch ? '-w' : ''} --project tsconfig.build.json`, (error, stdout, stderr) => {
   if (error) {
-    console.error(`exec error: ${error}`);
+    console.error(`TypeScript compilation failed:`);
+    console.error(stdout);
+    console.error(stderr);
     return;
   }
 
