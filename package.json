@@ -1,6 +1,6 @@
 {
   "name": "consoles-ai",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "ConsolesAI SDK and CLI tool",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
