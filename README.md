@@ -98,7 +98,7 @@ const podcastSchema = z.object({
       timestamp: z.string().describe('Timestamp in HH:MM:SS format'),
       summary: z.string().describe('Brief summary of the key moment')
     })
-  ).describe('Important moments with timestamps')
+  )
 });
 
 const podcast = await consoles.extract({
@@ -145,13 +145,13 @@ const chapterSchema = z.array(
     title: z.string().describe('Short, descriptive chapter title'),
     summary: z.string().describe('Detailed description of chapter content')
   })
-).describe('Video chapters with timestamps and descriptions');
+)
 
 const chapters = await consoles.extract({
   type: 'url',
   content: 'https://youtube.com/watch?v=example',
   schema: chapterSchema,
-  prompt: 'Generate detailed chapter markers with timestamps and summaries'
+  prompt: 'Based on the video provided, Generate detailed chapter markers with timestamps and summaries'
 });
 
 // Response:
