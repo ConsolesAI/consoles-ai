@@ -1,38 +1,35 @@
-import { ProviderModels } from './types/ProviderModels';
-
-export interface Prompt {
-  system: string;
-  messages: any[];
-  user: {
-    question: string;
+// VM types
+export interface VMOptions {
+  cpu?: number;
+  memory?: number;
+  gpu?: string | {
+    type: string;
+    count?: number;
   };
+  image?: string;
+  apt?: string[];
+  pip?: string[];
+  mounts?: string[];
 }
 
-export type llmProviders = keyof typeof ProviderModels;
-export type ProviderModelNames<T extends llmProviders> = (typeof ProviderModels)[T][number];
-
-export interface LLMOptions<T extends llmProviders = llmProviders> {
-  keys?: {
-    openai?: string;
-    anthropic?: string;
-    cohere?: string;
-    google?: string;
-    cloudflare?: {
-      accountId: string;
-      apiKey: string;
-    };
-  };
-  provider?: T;
-  model?: ProviderModelNames<T>;
-  maxTokens?: number;
-  temperature?: number;
-  topP?: number;
-  frequencyPenalty?: number;
-  presencePenalty?: number;
-  json?: boolean;
-  stream?: boolean;
-  tool_choice?: string;
-  tools?: any[];
+// Browser types
+export interface BrowserOptions {
+  headless?: boolean;
+  proxy?: string;
+  userAgent?: string;
 }
 
+// Sandbox types
+export interface SandboxOptions {
+  cpu?: number;
+  memory?: number;
+  gpu?: string | {
+    type: string;
+    count?: number;
+  };
+  language?: string;
+  apt?: string[];
+  pip?: string[];
+  npm?: string[];
+}
 
