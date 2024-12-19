@@ -1,7 +1,3 @@
-# Consoles
-
-The headless infrastructure layer for AI applications.
-
 ## What is it?
 
 Consoles gives AI applications access to infrastructure and enhanced capabilities through clean, intuitive APIs.
