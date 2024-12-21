@@ -12,7 +12,7 @@ export class Console {
     this.extractInstance = new Extract(apiKey);
   }
 
-  async extract(options: ExtractOptions | string): Promise<ExtractResponse> {
+  async extract(options: Exclude<ExtractOptions, { type: 'generate_schema' }> | string): Promise<ExtractResponse | ReadableStream> {
     if (typeof options === 'string') {
       return this.extractInstance.extract({
         type: 'text',
