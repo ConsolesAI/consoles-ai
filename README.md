@@ -196,6 +196,38 @@ const chapters = await consoles.extract({
 }
 ```
 
+##### Using Natural Language Schema
+```typescript
+// Extract with schema description
+const data = await consoles.extract({
+  type: 'file',
+  content: {
+    data: pdfBuffer.toString('base64'),
+    mimeType: 'application/pdf'
+  },
+  schemaDescription: 'Extract company metrics including revenue, profit margins, and year-over-year growth. Revenue should be a number, margins should be percentages, and growth should be a number representing the percentage change.',
+  prompt: 'Focus on the most recent fiscal year'
+});
+```
+
+```typescript
+// Response
+{
+  status: 'success',
+  result: {
+    revenue: 26974000000,
+    profitMargin: 28.5,
+    yearOverYearGrowth: 32.7
+  },
+  usage: {
+    input_tokens: 3245,
+    output_tokens: 156,
+    total_tokens: 3401,
+    total_cost: "0.0043"
+  }
+}
+```
+
 ### Browser
 Managed browser automation at scale.
 
