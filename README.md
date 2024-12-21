@@ -14,10 +14,10 @@ npm install consoles-ai
 
 #### Quick Start
 ```typescript
-import { Console } from 'consoles-ai';
+import { Extract } from 'consoles-ai';
 import { z } from 'zod';
 
-const consoles = new Console('key');
+const extract = new Extract('your-api-key');
 
 // Using Zod schema with descriptions
 const productSchema = z.object({
@@ -27,7 +27,7 @@ const productSchema = z.object({
   inStock: z.boolean().optional().describe('Current availability status')
 });
 
-const data = await consoles.extract({
+const data = await extract.extract({
   type: 'text',
   content: `
     New iPhone 15 Pro
@@ -51,6 +51,8 @@ const data = await consoles.extract({
 //     input_tokens: 28,
 //     output_tokens: 12,
 //     total_tokens: 40,
+//     input_cost: "0.0003",
+//     output_cost: "0.0001",
 //     total_cost: "0.0004"
 //   }
 // }
@@ -60,24 +62,18 @@ const data = await consoles.extract({
 
 ##### Document Analysis
 ```typescript
-// Using JSON Schema
-const financials = await consoles.extract({
+// Generate schema from description
+const schema = await extract.generateSchema(
+  'Extract financial metrics including revenue, net income, and GPU revenue (all in millions USD)'
+);
+
+const financials = await extract.extract({
   type: 'url',
   content: 'https://s22.q4cdn.com/959853165/files/doc_financials/2023/ar/NVDA-2023-Annual-Report.pdf',
-  schema: {
-    type: 'object',
-    properties: {
-      revenue: { type: 'number', description: 'Total revenue in millions USD' },
-      netIncome: { type: 'number', description: 'Net income in millions USD' },
-      gpuRevenue: { type: 'number', description: 'Revenue from GPU segment' }
-    },
-    required: ['revenue', 'netIncome']
-  },
+  schema,
   prompt: 'Extract the key financial metrics from FY2023'
 });
-```
 
-```typescript
 // Response
 {
   status: 'success',
@@ -90,6 +86,8 @@ const financials = await consoles.extract({
     input_tokens: 4537,
     output_tokens: 21,
     total_tokens: 4558,
+    input_cost: "0.0045",
+    output_cost: "0.0013",
     total_cost: "0.0058"
   }
 }
@@ -97,7 +95,7 @@ const financials = await consoles.extract({
 
 ##### Media Processing
 ```typescript
-// Extract podcast insights
+// Extract podcast insights with streaming
 const podcastSchema = z.object({
   topics: z.array(z.string()).describe('Main topics discussed in the podcast'),
   keyMoments: z.array(
@@ -108,43 +106,16 @@ const podcastSchema = z.object({
   )
 });
 
-const podcast = await consoles.extract({
+const stream = await extract.extract({
   type: 'file',
-  content: {
-    data: audioBuffer.toString('base64'),
-    mimeType: 'audio/mp3'
-  },
-  schema: podcastSchema
+  content: new Blob([audioBuffer], { type: 'audio/mp3' }),
+  schema: podcastSchema,
+  stream: true
 });
-```
 
-```typescript
-// Response
-{
-  status: 'success',
-  result: {
-    topics: [
-      "AI Safety",
-      "Neural Networks",
-      "Future of Computing"
-    ],
-    keyMoments: [
-      {
-        timestamp: "00:05:30",
-        summary: "Discussion on transformer architecture"
-      },
-      {
-        timestamp: "00:15:45",
-        summary: "Debate about AI regulation"
-      }
-    ]
-  },
-  usage: {
-    input_tokens: 8842,
-    output_tokens: 89,
-    total_tokens: 8931,
-    total_cost: "0.0115"
-  }
+// Process stream chunks
+for await (const chunk of stream) {
+  console.log('Received chunk:', chunk);
 }
 ```
 
@@ -158,15 +129,13 @@ const chapterSchema = z.array(
   })
 );
 
-const chapters = await consoles.extract({
+const chapters = await extract.extract({
   type: 'url',
   content: 'https://youtube.com/watch?v=example',
   schema: chapterSchema,
   prompt: 'Based on the video provided, Generate detailed chapter markers with timestamps and summaries'
 });
-```
 
-```typescript
 // Response
 {
   status: 'success',
@@ -191,6 +160,8 @@ const chapters = await consoles.extract({
     input_tokens: 3245,
     output_tokens: 156,
     total_tokens: 3401,
+    input_cost: "0.0032",
+    output_cost: "0.0011",
     total_cost: "0.0043"
   }
 }
@@ -199,7 +170,7 @@ const chapters = await consoles.extract({
 ##### Using Natural Language Schema
 ```typescript
 // Extract with schema description
-const data = await consoles.extract({
+const data = await extract.extract({
   type: 'file',
   content: {
     data: pdfBuffer.toString('base64'),
@@ -208,9 +179,7 @@ const data = await consoles.extract({
   schemaDescription: 'Extract company metrics including revenue, profit margins, and year-over-year growth. Revenue should be a number, margins should be percentages, and growth should be a number representing the percentage change.',
   prompt: 'Focus on the most recent fiscal year'
 });
-```
 
-```typescript
 // Response
 {
   status: 'success',
@@ -223,6 +192,8 @@ const data = await consoles.extract({
     input_tokens: 3245,
     output_tokens: 156,
     total_tokens: 3401,
+    input_cost: "0.0032",
+    output_cost: "0.0011",
     total_cost: "0.0043"
   }
 }
