@@ -202,7 +202,12 @@ On-demand compute resources for AI workloads.
 
 ## Documentation
 
-Visit our [documentation](https://docs.consoles.ai) for more information.
+Visit our [documentation](https://docs.consoles.ai) for more information:
+
+- [API Reference](https://docs.consoles.ai/reference) - Complete API documentation including supported file types and formats
+- [Tutorials](https://docs.consoles.ai/tutorials) - Step-by-step guides to get started
+- [How-to Guides](https://docs.consoles.ai/how-to) - Practical guides for common tasks
+- [Explanation](https://docs.consoles.ai/explanation) - Concepts and technical details
 
 ## Links
 
