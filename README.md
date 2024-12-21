@@ -14,10 +14,10 @@ npm install consoles-ai
 
 #### Quick Start
 ```typescript
-import { Extract } from 'consoles-ai';
+import { Console } from 'consoles-ai';
 import { z } from 'zod';
 
-const extract = new Extract('your-api-key');
+const consoles = new Console('your-api-key');
 
 // Using Zod schema with descriptions
 const productSchema = z.object({
@@ -27,7 +27,7 @@ const productSchema = z.object({
   inStock: z.boolean().optional().describe('Current availability status')
 });
 
-const data = await extract.extract({
+const data = await consoles.extract({
   type: 'text',
   content: `
     New iPhone 15 Pro
@@ -62,15 +62,10 @@ const data = await extract.extract({
 
 ##### Document Analysis
 ```typescript
-// Generate schema from description
-const schema = await extract.generateSchema(
-  'Extract financial metrics including revenue, net income, and GPU revenue (all in millions USD)'
-);
-
-const financials = await extract.extract({
+const financials = await consoles.extract({
   type: 'url',
   content: 'https://s22.q4cdn.com/959853165/files/doc_financials/2023/ar/NVDA-2023-Annual-Report.pdf',
-  schema,
+  schemaDescription: "Extract financial metrics including revenue, net income, and GPU revenue (all in millions USD)'"
   prompt: 'Extract the key financial metrics from FY2023'
 });
 
@@ -106,7 +101,7 @@ const podcastSchema = z.object({
   )
 });
 
-const stream = await extract.extract({
+const stream = await consoles.extract({
   type: 'file',
   content: new Blob([audioBuffer], { type: 'audio/mp3' }),
   schema: podcastSchema,
@@ -129,7 +124,7 @@ const chapterSchema = z.array(
   })
 );
 
-const chapters = await extract.extract({
+const chapters = await consoles.extract({
   type: 'url',
   content: 'https://youtube.com/watch?v=example',
   schema: chapterSchema,
@@ -170,7 +165,7 @@ const chapters = await extract.extract({
 ##### Using Natural Language Schema
 ```typescript
 // Extract with schema description
-const data = await extract.extract({
+const data = await consoles.extract({
   type: 'file',
   content: {
     data: pdfBuffer.toString('base64'),
