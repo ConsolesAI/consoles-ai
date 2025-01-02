@@ -1,3 +1,9 @@
+// Storage types
+export * from './storage/types';
+
+// Re-export Web3 types
+export * from './web3/types';
+
 // VM types
 export interface VMOptions {
   cpu?: number;
@@ -32,7 +38,4 @@ export interface SandboxOptions {
   pip?: string[];
   npm?: string[];
 }
-
-// Re-export Web3 types
-export * from './web3/types';
 

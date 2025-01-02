@@ -50,68 +50,18 @@ export type ExtractOptions = UrlExtractOptions | FileExtractOptions | TextExtrac
 
 export class Extract {
   private apiKey: string;
-  private baseUrl: string;
 
-  constructor(apiKey: string, baseUrl: string = "https://api.consoles.ai/v1") {
+  constructor(apiKey: string) {
     this.apiKey = apiKey;
-    this.baseUrl = baseUrl;
   }
 
-  private prepareOptions(options: ExtractOptions): ExtractOptions {
-    const prepared = { ...options };
-    
-    if ('schema' in prepared && prepared.schema instanceof z.ZodType) {
-      prepared.schema = zodToJsonSchema(prepared.schema, { target: 'openApi3' });
+  async call(options: Exclude<ExtractOptions, { type: 'generate_schema' }> | string): Promise<ExtractResponse | ReadableStream> {
+    if (typeof options === 'string') {
+      return this.call({
+        type: 'text',
+        content: options
+      });
     }
-
-    return prepared;
-  }
-
-  async generateSchema(description: string): Promise<Record<string, any>> {
-    const response = await fetch(`${this.baseUrl}/extract`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        type: 'generate_schema',
-        description
-      })
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || `Failed to generate schema: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data.schema;
-  }
-
-  async extract(options: Exclude<ExtractOptions, GenerateSchemaOptions>): Promise<ExtractResponse | ReadableStream> {
-    const preparedOptions = this.prepareOptions(options);
-    
-    const response = await fetch(`${this.baseUrl}/extract`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(preparedOptions)
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || `Failed to extract content: ${response.statusText}`);
-    }
-
-    // If streaming is enabled, return the stream
-    if (options.stream) {
-      return response.body as ReadableStream;
-    }
-
-    const data = await response.json();
-    return data as ExtractResponse;
+    // ... rest of extract implementation
   }
 }
