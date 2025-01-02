@@ -33,3 +33,6 @@ export interface SandboxOptions {
   npm?: string[];
 }
 
+// Re-export Web3 types
+export * from './web3/types';
+
