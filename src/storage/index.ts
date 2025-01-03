@@ -41,7 +41,23 @@ export class Storage implements IStorage {
     }
 
     // Proceed with the upload
-    // existing upload logic...
+    const response = await fetch('https://api.consoles.ai/v1/storage/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        type,
+        content,
+        metadata: {
+          folder,
+          tags
+        }
+      })
+    });
+    
+    return await response.json();
   }
 
   async checkFolderExists(folderPath): Promise<boolean> {
@@ -63,9 +79,16 @@ export class Storage implements IStorage {
     return result.exists; // Assuming the API returns an 'exists' boolean
   }
 
-  async createFolder(folderPath) {
-    // Logic to create the folder
-    // This could involve an API call to create a new folder
+  async createFolder(folderPath: string): Promise<void> {
+    // Create the folder via API call
+    await fetch('https://api.consoles.ai/v1/storage/create-folder', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ folderPath })
+    });
   }
 }
 

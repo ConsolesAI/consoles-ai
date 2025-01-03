@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 
 export interface ExtractUsage {
   input_tokens: number;
@@ -49,7 +48,7 @@ export interface GenerateSchemaOptions {
 export type ExtractOptions = UrlExtractOptions | FileExtractOptions | TextExtractOptions | GenerateSchemaOptions;
 
 export class Extract {
-  private apiKey: string;
+  private readonly apiKey: string;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
@@ -62,6 +61,16 @@ export class Extract {
         content: options
       });
     }
-    // ... rest of extract implementation
+
+    const response = await fetch('https://api.consoles.ai/v1/extract', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(options)
+    });
+
+    return options.stream ? response.body! : await response.json();
   }
 }

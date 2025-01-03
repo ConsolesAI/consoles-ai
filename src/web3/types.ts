@@ -1,5 +1,3 @@
-import { Keypair } from "@solana/web3.js";
-
 // Base types shared across chains
 export type Blockchain = 'solana' | 'ethereum';
 

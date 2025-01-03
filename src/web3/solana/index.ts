@@ -3,25 +3,23 @@ import {
   PublicKey, 
   VersionedTransaction, 
   TransactionMessage,
-  Keypair
+  Keypair,
+  TransactionInstruction
 } from "@solana/web3.js";
 import {
   getAssociatedTokenAddressSync,
   createTransferInstruction,
-  createAssociatedTokenAccountInstruction,
-  getMint
+  createAssociatedTokenAccountInstruction
 } from "@solana/spl-token";
 import BigNumber from "bignumber.js";
 import { PumpFunProvider } from './pumpfun';
 import { 
-  TokenSymbol,
   TokenPrice,
   TransferParams,
   SwapParams,
   CreateTokenParams,
   SolanaSDK as ISolanaSDK,
-  PriceBuilder as IPriceBuilder,
-  DEX
+  PriceBuilder as IPriceBuilder
 } from './types';
 import { TransactionResult, WalletInfo } from '../types';
 
@@ -110,8 +108,13 @@ export class SolanaSDK implements ISolanaSDK {
   readonly JUPITER_API_BASE = 'https://quote-api.jup.ag/v6';
 
   constructor(apiKey: string, rpc: string = 'https://api.mainnet-beta.solana.com') {
+    this._connection = new Connection(rpc, {
+      commitment: 'confirmed',
+      httpHeaders: {
+        Authorization: `Bearer ${apiKey}`
+      }
+    });
     this.apiKey = apiKey;
-    this._connection = new Connection(rpc);
   }
 
   get connection() {
@@ -178,7 +181,7 @@ export class SolanaSDK implements ISolanaSDK {
         const fromATA = getAssociatedTokenAddressSync(mint, from.publicKey);
         const toATA = getAssociatedTokenAddressSync(mint, toPublicKey);
 
-        const instructions = [];
+        const instructions: TransactionInstruction[] = [];
 
         // Create destination ATA if it doesn't exist
         try {
@@ -333,8 +336,16 @@ export class SolanaSDK implements ISolanaSDK {
   }
 
   private async raydiumSwap(params: SwapParams): Promise<TransactionResult> {
-    // TODO: Implement Raydium swap using their SDK
-    throw new Error('Raydium swap not implemented yet');
+    const response = await fetch(`${this.RAYDIUM_API_BASE}/swap`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`
+      },
+      body: JSON.stringify(params)
+    });
+    
+    return await response.json();
   }
 
   async createToken(params: CreateTokenParams): Promise<TransactionResult> {
