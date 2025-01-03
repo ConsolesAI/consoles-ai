@@ -99,6 +99,19 @@ export interface DeleteResponse extends StorageResponse {
   };
 }
 
+// Folder operation types
+export interface CheckFolderResponse extends StorageResponse {
+  result: {
+    exists: boolean;
+  };
+}
+
+export interface CreateFolderResponse extends StorageResponse {
+  result: {
+    path: string;
+  };
+}
+
 // Main interfaces
 export interface Drive {
   upload(options: UploadOptions): Promise<UploadResponse>;
@@ -108,6 +121,8 @@ export interface Drive {
   move(options: MoveOptions): Promise<MoveResponse>;
   updateTags(options: UpdateTagsOptions): Promise<UpdateTagsResponse>;
   delete(path: string): Promise<DeleteResponse>;
+  uploadMany(files: UploadOptions[]): Promise<UploadResponse[]>;
+  // Add methods for folder operations if needed
 }
 
 export interface File {
@@ -120,4 +135,5 @@ export interface File {
 
 export interface Storage {
   drive(name: string): Drive;
+  // Add methods for folder operations if needed
 } 

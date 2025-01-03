@@ -25,6 +25,48 @@ export class Storage implements IStorage {
   drive(name: string): IDrive {
     return new Drive(name, this.apiKey);
   }
+
+  async upload({ type, content, metadata }) {
+    const { folder, tags } = metadata;
+
+    // Check if folder path is provided and contains a slash
+    if (folder && folder.includes('/')) {
+      // Check if the folder exists
+      const folderExists = await this.checkFolderExists(folder);
+
+      // Create the folder if it doesn't exist
+      if (!folderExists) {
+        await this.createFolder(folder);
+      }
+    }
+
+    // Proceed with the upload
+    // existing upload logic...
+  }
+
+  async checkFolderExists(folderPath): Promise<boolean> {
+    // Logic to check if the folder exists
+    // This could involve an API call to list folders or a metadata check
+    // Return true if exists, false otherwise
+
+    // Example implementation (replace with actual logic)
+    const response = await fetch(`https://api.consoles.ai/v1/storage/check-folder`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ folderPath })
+    });
+
+    const result = await response.json();
+    return result.exists; // Assuming the API returns an 'exists' boolean
+  }
+
+  async createFolder(folderPath) {
+    // Logic to create the folder
+    // This could involve an API call to create a new folder
+  }
 }
 
 class Drive implements IDrive {
@@ -175,6 +217,10 @@ class Drive implements IDrive {
       },
       usage: result.usage
     };
+  }
+
+  async uploadMany(files: UploadOptions[]): Promise<UploadResponse[]> {
+    return Promise.all(files.map(options => this.upload(options)));
   }
 }
 
