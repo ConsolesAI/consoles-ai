@@ -38,14 +38,15 @@ export class Web3SDK {
 // Only export base types from web3/types
 export * from './types';
 // Export Solana-specific types and utils
-export { 
+export type {
   TokenSymbol,
-  TokenPrice as SolanaTokenPrice,
-  PriceBuilder as SolanaPriceBuilder,
-  TransferParams as SolanaTransferParams,
-  SwapParams as SolanaSwapParams,
-  TokenMetadata as SolanaTokenMetadata,
-  CreateTokenParams as SolanaCreateTokenParams,
+  DEX,
+  TokenPrice,
+  PriceBuilder,
+  TransferParams,
+  SwapParams,
+  TokenMetadata,
+  CreateTokenParams,
   SolanaSDK
 } from './solana/types';
 

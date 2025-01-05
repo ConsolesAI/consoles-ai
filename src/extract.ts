@@ -10,6 +10,7 @@ export interface ExtractUsage {
 }
 
 export interface ExtractResponse {
+  id: string;
   status: 'success';
   result: any;
   usage: ExtractUsage;
@@ -54,23 +55,35 @@ export class Extract {
     this.apiKey = apiKey;
   }
 
-  async call(options: Exclude<ExtractOptions, { type: 'generate_schema' }> | string): Promise<ExtractResponse | ReadableStream> {
+  async call(options: Exclude<ExtractOptions, { type: 'generate_schema' }> | string): Promise<ExtractResponse> {
     if (typeof options === 'string') {
-      return this.call({
+      options = {
         type: 'text',
         content: options
-      });
+      };
     }
 
     const response = await fetch('https://api.consoles.ai/v1/extract', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
       body: JSON.stringify(options)
     });
 
-    return options.stream ? response.body! : await response.json();
+    if (!response.ok) {
+      const errorText = await response.text();
+      try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.error?.message || 'API request failed');
+      } catch (e) {
+        throw new Error(`API request failed (${response.status}): ${errorText}`);
+      }
+    }
+
+    const data = await response.json();
+    return data as ExtractResponse;
   }
 }
