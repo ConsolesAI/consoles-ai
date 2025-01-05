@@ -1,6 +1,6 @@
 ## What is it?
 
-Consoles gives AI applications access to infrastructure and enhanced capabilities through clean, intuitive APIs.
+Consoles gives applications access to infrastructure and enhanced capabilities through clean, intuitive APIs.
 
 ## Available APIs
 
