@@ -1,5 +1,4 @@
-// Storage types
-export * from './storage/types';
+
 
 // Re-export Web3 types
 export * from './web3/types';
