@@ -1,6 +1,7 @@
 import { Keypair } from "@solana/web3.js";
 import { TransactionResult, WalletInfo, BaseTokenPrice, BasePriceBuilder, BaseChainSDK } from '../types';
 
+// Export all types explicitly
 export type TokenSymbol = 'SOL' | 'USDC' | 'BTC' | 'ETH' | string;
 export type DEX = 'jupiter' | 'raydium' | 'pumpfun';
 
@@ -32,7 +33,7 @@ export interface SwapParams {
   to: { 
     token: TokenSymbol;
   };
-  dex?: DEX;  // Optional - defaults to jupiter if not specified
+  dex?: DEX;
   slippage?: string;
 }
 
@@ -43,16 +44,27 @@ export interface TokenMetadata {
   image_description: string;
 }
 
+// Make sure this interface is properly exported
 export interface CreateTokenParams {
   metadata: TokenMetadata;
   buyAmount?: string | number;
 }
 
-// Solana SDK interface
 export interface SolanaSDK extends BaseChainSDK {
   price(address: string): PriceBuilder;
   connect(wallet: Keypair): Promise<WalletInfo>;
   transfer(params: TransferParams): Promise<TransactionResult>;
   swap(params: SwapParams): Promise<TransactionResult>;
   createToken(params: CreateTokenParams): Promise<TransactionResult>;
-} 
+}
+
+// Add a barrel export at the bottom to ensure all types are available
+export type {
+  TokenPrice,
+  PriceBuilder,
+  TransferParams,
+  SwapParams,
+  TokenMetadata,
+  CreateTokenParams,
+  SolanaSDK
+}; 
