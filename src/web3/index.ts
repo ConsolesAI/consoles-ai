@@ -2,6 +2,15 @@ import { SolanaSDK } from './solana';
 import { Blockchain } from './types';
 import { Keypair } from "@solana/web3.js";
 import bs58 from 'bs58';
+import type { 
+  TokenSymbol,
+  TokenPrice,
+  PriceBuilder,
+  TransferParams,
+  SwapParams,
+  TokenMetadata,
+  CreateTokenParams
+} from './solana/types';
 
 export class Web3SDK {
   solana: SolanaSDK;
@@ -37,8 +46,9 @@ export class Web3SDK {
 
 // Only export base types from web3/types
 export * from './types';
-// Export Solana-specific types and utils
-export { 
+
+// Export Solana-specific types with aliases
+export type {
   TokenSymbol,
   TokenPrice as SolanaTokenPrice,
   PriceBuilder as SolanaPriceBuilder,
