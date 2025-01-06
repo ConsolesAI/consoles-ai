@@ -1,5 +1,5 @@
 import { Web3SDK } from './web3';
-import { Extract } from './extract';
+import { Extract, ExtractInstance } from './extract';
 import { Browser } from './browser';
 import { VM } from './vm';
 import { Sandbox } from './sandbox';
@@ -7,7 +7,7 @@ import { Sandbox } from './sandbox';
 export class Consoles {
   private _apiKey?: string;
   private _web3?: Web3SDK;
-  private _extract?: Extract;
+  private _extract?: ExtractInstance;
   private _vm?: VM;
   private _sandbox?: Sandbox;
 
@@ -38,7 +38,7 @@ export class Consoles {
       if (!this._apiKey) {
         throw new Error('API key required for Extract service. Get one at https://consoles.ai');
       }
-      this._extract = new Extract({ apiKey: this._apiKey });
+      this._extract = Extract({ apiKey: this._apiKey });
     }
     return this._extract;
   }

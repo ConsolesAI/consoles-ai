@@ -53,42 +53,52 @@ export interface GenerateSchemaOptions {
 
 export type ExtractOptions = UrlExtractOptions | FileExtractOptions | TextExtractOptions | GenerateSchemaOptions;
 
-export class Extract {
-  private readonly consoles: ConsolesInstance;
+type ExtractInput = Exclude<ExtractOptions, { type: 'generate_schema' }> | string;
 
-  constructor(consoles: ConsolesInstance) {
-    this.consoles = consoles;
+export interface ExtractInstance {
+  (options: ExtractInput): Promise<ExtractResponse>;
+  extract(options: ExtractInput): Promise<ExtractResponse>;
+}
+
+async function makeRequest(apiKey: string, options: ExtractInput): Promise<ExtractResponse> {
+  let normalizedOptions: Exclude<ExtractOptions, { type: 'generate_schema' }>;
+
+  // Handle string shorthand
+  if (typeof options === 'string') {
+    normalizedOptions = {
+      type: 'text',
+      content: options
+    };
+  } else {
+    normalizedOptions = options;
   }
 
-  async call(options: Exclude<ExtractOptions, { type: 'generate_schema' }> | string): Promise<ExtractResponse> {
-    if (typeof options === 'string') {
-      options = {
-        type: 'text',
-        content: options
-      };
+  const response = await fetch('https://api.consoles.ai/v1/extract', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(normalizedOptions)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    try {
+      const errorJson = JSON.parse(errorText);
+      throw new Error(errorJson.error?.message || 'API request failed');
+    } catch (e) {
+      throw new Error(`API request failed (${response.status}): ${errorText}`);
     }
-
-    const response = await fetch('https://api.consoles.ai/v1/extract', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.consoles.apiKey}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(options)
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      try {
-        const errorJson = JSON.parse(errorText);
-        throw new Error(errorJson.error?.message || 'API request failed');
-      } catch (e) {
-        throw new Error(`API request failed (${response.status}): ${errorText}`);
-      }
-    }
-
-    const data = await response.json();
-    return data as ExtractResponse;
   }
+
+  const data = await response.json();
+  return data as ExtractResponse;
+}
+
+export function Extract(consoles: ConsolesInstance): ExtractInstance {
+  const extractFn = (options: ExtractInput) => makeRequest(consoles.apiKey, options);
+  extractFn.extract = extractFn;
+  return extractFn;
 }
