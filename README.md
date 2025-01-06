@@ -41,11 +41,17 @@ const wallet = web3.createWallet();
 const privateKey = web3.getPrivateKey(wallet);
 const loadedWallet = web3.loadWallet(privateKey);
 
+// Configure custom RPC endpoint (optional)
+web3.solana.setRpcEndpoint('https://your-rpc-endpoint.com');
+// Or use the shorthand
+web3.setRpcEndpoint('https://your-rpc-endpoint.com');
+
+// Get Solana connection for direct RPC calls
+const connection = web3.solana.getConnection();
+const balance = await connection.getBalance(wallet.publicKey);
+
 // Price checking with Jupiter
 const jupiterPrice = await web3.solana.getJupiterPrice('token-address');
-
-// Custom RPC endpoint
-web3.setRpcEndpoint('your-rpc-url');
 
 // DEX operations
 const swapResult = await web3.solana.swap({
@@ -84,9 +90,10 @@ const data = await consoles.extract({
 ```
 
 ## Coming Soon
-- Browser Automation
-- Compute Resources
-- Storage Solutions
+- Browser Infrastructure
+- Computer Use
+- Storage
+- Tool/Function Platform
 - And more!
 
 ## Links
