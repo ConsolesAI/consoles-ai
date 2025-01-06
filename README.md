@@ -1,8 +1,13 @@
 ## What is it?
 
-Consoles gives AI applications access to infrastructure and enhanced capabilities through clean, intuitive APIs. Some features are available without an API key, while premium features require one.
+Consoles gives AI applications access to infrastructure and enhanced capabilities through clean, intuitive APIs.
 
-## Installation
+## Available APIs
+
+### Extract
+Transform any content into structured data with AI.
+
+#### Installation
 ```bash
 npm install consoles-ai
 ```
