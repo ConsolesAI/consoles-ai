@@ -9,6 +9,7 @@ export interface TransactionResult {
 export interface WalletInfo {
   address: string;
   publicKey: string;
+  network: string;
 }
 
 // Base interfaces that chains will extend
