@@ -1,51 +1,74 @@
 import { Web3SDK } from './web3';
-import { VM } from "./vm";
-import { Browser } from "./browser";
-import { Sandbox } from "./sandbox";
-import { Extract, ExtractOptions, ExtractResponse } from "./extract";
+import { Extract } from './extract';
+import { Browser } from './browser';
+import { VM } from './vm';
+import { Sandbox } from './sandbox';
 
 export class Consoles {
-  
-  readonly web3: Web3SDK;
-  readonly extract: Extract & {
-    (options: Exclude<ExtractOptions, { type: 'generate_schema' }> | string): Promise<ExtractResponse | ReadableStream>
-  };
-  private readonly apiKey: string;
+  private _apiKey?: string;
+  private _web3?: Web3SDK;
+  private _extract?: Extract;
+  private _vm?: VM;
+  private _sandbox?: Sandbox;
 
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
-    this.web3 = new Web3SDK(apiKey);
-    
-    const extractInstance = new Extract(apiKey);
-    const extractCallable = Object.assign(
-      (options: Exclude<ExtractOptions, { type: 'generate_schema' }> | string) => 
-        extractInstance.call(options),
-      extractInstance
-        );
-    
-    this.extract = extractCallable as any;
+  constructor(apiKey?: string) {
+    this._apiKey = apiKey;
   }
 
-  browser(profile: string): Browser {
-    return new Browser(profile, this.apiKey);
+  // Allow setting API key after initialization
+  setApiKey(apiKey: string) {
+    this._apiKey = apiKey;
+    // Reset instances so they'll be recreated with new API key
+    this._web3 = undefined;
+    this._extract = undefined;
+    this._vm = undefined;
+    this._sandbox = undefined;
   }
 
-  VM(): VM {
-    return new VM(this.apiKey);
+  // Getters for each product - they handle their own API key requirements
+  get web3() {
+    if (!this._web3) {
+      this._web3 = new Web3SDK({ apiKey: this._apiKey });
+    }
+    return this._web3;
   }
 
-  sandbox(): Sandbox {
-    return new Sandbox(this.apiKey);
+  get extract() {
+    if (!this._extract) {
+      if (!this._apiKey) {
+        throw new Error('API key required for Extract service. Get one at https://consoles.ai');
+      }
+      this._extract = new Extract({ apiKey: this._apiKey });
+    }
+    return this._extract;
+  }
+
+  browser(profile: string) {
+    if (!this._apiKey) {
+      throw new Error('API key required for Browser service. Get one at https://consoles.ai');
+    }
+    return new Browser(profile, { apiKey: this._apiKey });
+  }
+
+  get vm() {
+    if (!this._vm) {
+      if (!this._apiKey) {
+        throw new Error('API key required for VM service. Get one at https://consoles.ai');
+      }
+      this._vm = new VM({ apiKey: this._apiKey });
+    }
+    return this._vm;
+  }
+
+  get sandbox() {
+    if (!this._sandbox) {
+      if (!this._apiKey) {
+        throw new Error('API key required for Sandbox service. Get one at https://consoles.ai');
+      }
+      this._sandbox = new Sandbox({ apiKey: this._apiKey });
+    }
+    return this._sandbox;
   }
 }
 
-// Export types
-export type {
-  ExtractOptions,
-  ExtractResponse
-};
-export * from './web3/types';
-
-
-// Default export
 export default Consoles;

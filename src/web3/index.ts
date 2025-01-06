@@ -1,54 +1,61 @@
-import { SolanaSDK } from './solana';
-import { Blockchain } from './types';
 import { Keypair } from "@solana/web3.js";
+import SolanaAdapter from './solana';
 import bs58 from 'bs58';
 
+// Simple interface for what we need from Consoles
+interface ConsolesInstance {
+  apiKey?: string; // Make API key optional
+}
+
 export class Web3SDK {
-  solana: SolanaSDK;
+  private _solana?: SolanaAdapter;
+  private consoles: ConsolesInstance;
 
-  constructor(apiKey: string) {
-    this.solana = new SolanaSDK(apiKey);
+  constructor(consoles?: ConsolesInstance) {
+    this.consoles = consoles || {}; // Allow empty constructor
   }
 
-  getSDK(chain: Blockchain) {
-    switch (chain) {
-      case 'solana':
-        return this.solana;
-      default:
-        throw new Error(`Unsupported blockchain: ${chain}`);
+  get solana(): SolanaAdapter {
+    if (!this._solana) {
+      this._solana = new SolanaAdapter(this.consoles.apiKey);
     }
+    return this._solana;
   }
 
-  // Create new wallet
+  // Configure RPC endpoint
+  setRpcEndpoint(endpoint: string) {
+    if (!this._solana) {
+      this._solana = new SolanaAdapter(this.consoles.apiKey);
+    }
+    this._solana.setRpcEndpoint(endpoint);
+    return this._solana;
+  }
+
+  // Free features - no API key needed
   createWallet() {
     return Keypair.generate();
   }
 
-  // Get private key (works in any Solana wallet)
   getPrivateKey(wallet: Keypair) {
     return bs58.encode(wallet.secretKey);
   }
 
-  // Load wallet from private key
   loadWallet(privateKey: string) {
     return Keypair.fromSecretKey(bs58.decode(privateKey));
   }
+
+  /* Helper to check if premium features are available
+  private requireApiKey(feature: string): void {
+    if (!this.consoles.apiKey) {
+      throw new Error(`API key required for premium feature: ${feature}. Get one at https://consoles.ai`);
+    }
+  }
+  */
 }
 
-// Only export base types from web3/types
+// Export all types
 export * from './types';
-// Export Solana-specific types and utils
-export type {
-  TokenSymbol,
-  DEX,
-  TokenPrice,
-  PriceBuilder,
-  TransferParams,
-  SwapParams,
-  TokenMetadata,
-  CreateTokenParams,
-  SolanaSDK
-} from './solana/types';
+export * from './solana/types';
 
-// Export Solana utils
+// Export utils
 export { Keypair };

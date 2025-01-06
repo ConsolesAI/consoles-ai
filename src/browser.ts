@@ -1,10 +1,15 @@
-export class Browser {
-  profile: string;
-  private apiKey: string;
+// Simple interface for what we need from Consoles
+interface ConsolesInstance {
+  apiKey: string;
+}
 
-  constructor(profile: string, apiKey: string) {
+export class Browser {
+  private readonly consoles: ConsolesInstance;
+  private readonly profile: string;
+
+  constructor(profile: string, consoles: ConsolesInstance) {
     this.profile = profile;
-    this.apiKey = apiKey;
+    this.consoles = consoles;
   }
 
   async launch(options: {
@@ -15,7 +20,7 @@ export class Browser {
     const response = await fetch('https://browser.consoles.ai/launch', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        'Authorization': `Bearer ${this.consoles.apiKey}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -25,7 +30,7 @@ export class Browser {
     });
 
     const { sessionId } = await response.json();
-    return new BrowserSession(sessionId, this.apiKey);
+    return new BrowserSession(sessionId, this.consoles.apiKey);
   }
 }
 

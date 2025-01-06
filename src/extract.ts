@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+// Simple interface for what we need from Consoles
+interface ConsolesInstance {
+  apiKey: string;
+}
+
 export interface ExtractUsage {
   input_tokens: number;
   output_tokens: number;
@@ -49,10 +54,10 @@ export interface GenerateSchemaOptions {
 export type ExtractOptions = UrlExtractOptions | FileExtractOptions | TextExtractOptions | GenerateSchemaOptions;
 
 export class Extract {
-  private readonly apiKey: string;
+  private readonly consoles: ConsolesInstance;
 
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
+  constructor(consoles: ConsolesInstance) {
+    this.consoles = consoles;
   }
 
   async call(options: Exclude<ExtractOptions, { type: 'generate_schema' }> | string): Promise<ExtractResponse> {
@@ -66,7 +71,7 @@ export class Extract {
     const response = await fetch('https://api.consoles.ai/v1/extract', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        'Authorization': `Bearer ${this.consoles.apiKey}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },

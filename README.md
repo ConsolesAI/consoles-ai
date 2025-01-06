@@ -1,23 +1,98 @@
 ## What is it?
 
-Consoles gives AI applications access to infrastructure and enhanced capabilities through clean, intuitive APIs.
+Consoles gives AI applications access to infrastructure and enhanced capabilities through clean, intuitive APIs. Some features are available without an API key, while premium features require one.
 
-## Available APIs
-
-### Extract
-Transform any content into structured data with AI.
-
-#### Installation
+## Installation
 ```bash
 npm install consoles-ai
 ```
 
-#### Quick Start
+## Quick Start
+
 ```typescript
-import { Console } from 'consoles-ai';
+import { Consoles } from 'consoles-ai';
+
+// Initialize without API key for free features
+const consoles = new Consoles();
+
+// Create a Solana wallet (free)
+const wallet = consoles.web3.createWallet();
+console.log('Wallet address:', wallet.publicKey.toString());
+
+// Get Jupiter DEX price (free)
+const price = await consoles.web3.solana.getJupiterPrice('token-address');
+console.log('Price:', price);
+
+// Add API key for premium features
+consoles.setApiKey('your-api-key');
+
+// Use premium features like Extract
+const data = await consoles.extract({
+  type: 'text',
+  content: 'Your content here',
+  prompt: 'Extract key information'
+});
+```
+
+## Available APIs
+
+### Web3 SDK
+Blockchain integration with both free and premium features.
+
+#### Free Features (No API Key Required)
+```typescript
+const consoles = new Consoles();
+const web3 = consoles.web3;
+
+// Wallet operations
+const wallet = web3.createWallet();
+const privateKey = web3.getPrivateKey(wallet);
+const loadedWallet = web3.loadWallet(privateKey);
+
+// Basic price checking
+const jupiterPrice = await web3.solana.getJupiterPrice('token-address');
+
+// Custom RPC
+web3.setRpcEndpoint('your-rpc-url');
+```
+
+#### Premium Features (API Key Required)
+```typescript
+const consoles = new Consoles('your-api-key');
+const web3 = consoles.web3;
+
+// Aggregated price feeds
+const prices = await web3.solana.price('token-address');
+// Returns prices from Jupiter, Raydium, PumpFun
+
+// Create and trade tokens
+const tokenResult = await web3.solana.createToken({
+  metadata: {
+    name: "My Token",
+    symbol: "MYTKN",
+    description: "Description"
+  },
+  buyAmount: 0.1
+});
+
+// DEX trading with best price routing
+const swapResult = await web3.solana.swap({
+  from: { token: 'SOL', amount: '0.1' },
+  to: { token: 'USDC' },
+  dex: 'jupiter',
+  slippage: '100' // 1% slippage
+});
+```
+
+### Extract (Premium)
+Transform any content into structured data with AI. Requires API key.
+
+#### Basic Usage
+```typescript
+import { Consoles } from 'consoles-ai';
 import { z } from 'zod';
 
-const consoles = new Console('your-api-key');
+const consoles = new Consoles('your-api-key');
 
 // Using Zod schema with descriptions
 const productSchema = z.object({
@@ -58,14 +133,12 @@ const data = await consoles.extract({
 // }
 ```
 
-#### Examples
-
-##### Document Analysis
+#### Document Analysis
 ```typescript
 const financials = await consoles.extract({
   type: 'url',
   content: 'https://s22.q4cdn.com/959853165/files/doc_financials/2023/ar/NVDA-2023-Annual-Report.pdf',
-  schemaDescription: "Extract financial metrics including revenue, net income, and GPU revenue (all in millions USD)'"
+  schemaDescription: "Extract financial metrics including revenue, net income, and GPU revenue (all in millions USD)",
   prompt: 'Extract the key financial metrics from FY2023'
 });
 
@@ -88,7 +161,7 @@ const financials = await consoles.extract({
 }
 ```
 
-##### Media Processing
+#### Media Processing
 ```typescript
 // Extract podcast insights with streaming
 const podcastSchema = z.object({
@@ -112,9 +185,7 @@ const stream = await consoles.extract({
 for await (const chunk of stream) {
   console.log('Received chunk:', chunk);
 }
-```
 
-```typescript
 // Generate YouTube chapters
 const chapterSchema = z.array(
   z.object({
@@ -128,7 +199,7 @@ const chapters = await consoles.extract({
   type: 'url',
   content: 'https://youtube.com/watch?v=example',
   schema: chapterSchema,
-  prompt: 'Based on the video provided, Generate detailed chapter markers with timestamps and summaries'
+  prompt: 'Generate detailed chapter markers with timestamps and summaries'
 });
 
 // Response
@@ -162,7 +233,7 @@ const chapters = await consoles.extract({
 }
 ```
 
-##### Using Natural Language Schema
+#### Using Natural Language Schema
 ```typescript
 // Extract with schema description
 const data = await consoles.extract({
@@ -194,18 +265,46 @@ const data = await consoles.extract({
 }
 ```
 
-### Browser
+### Browser (Premium)
 Managed browser automation at scale.
 
-### Computer
+```typescript
+const consoles = new Consoles('your-api-key');
+
+const browser = consoles.browser('default');
+const session = await browser.launch();
+await session.goto('https://example.com');
+const screenshot = await session.screenshot();
+```
+
+### VM (Premium)
 On-demand compute resources for AI workloads.
+
+```typescript
+const consoles = new Consoles('your-api-key');
+
+const vm = consoles.vm;
+// VM operations require API key
+```
+
+### Sandbox (Premium)
+Secure environment for running untrusted code.
+
+```typescript
+const consoles = new Consoles('your-api-key');
+
+const sandbox = consoles.sandbox;
+// Sandbox operations require API key
+```
 
 ## Documentation
 
 Visit our [documentation](https://docs.consoles.ai) for more information:
 
 - [API Reference](https://docs.consoles.ai/reference) - Complete API documentation including supported file types and formats
-- [Tutorials](https://docs.consoles.ai/tutorials) - Step-by-step guides to get started
+- [Tutorials](https://docs.consoles.ai/tutorials) - Step-by-step guides
+- [Free vs Premium Features](https://docs.consoles.ai/features) - Detailed feature comparison
+- [Getting an API Key](https://consoles.ai/signup) - Sign up for premium features
 - [How-to Guides](https://docs.consoles.ai/how-to) - Practical guides for common tasks
 - [Explanation](https://docs.consoles.ai/explanation) - Concepts and technical details
 

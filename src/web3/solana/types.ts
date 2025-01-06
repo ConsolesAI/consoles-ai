@@ -1,30 +1,35 @@
 import { Keypair } from "@solana/web3.js";
-import { TransactionResult, WalletInfo, BaseTokenPrice, BasePriceBuilder, BaseChainSDK } from '../types';
+import { TransactionResult as BaseTransactionResult, BaseTokenPrice, BasePriceBuilder } from '../types';
 
-// Define types first, then export them in the barrel
-type TokenSymbol = 'SOL' | 'USDC' | 'BTC' | 'ETH' | string;
-type DEX = 'jupiter' | 'raydium' | 'pumpfun';
+// Re-export TransactionResult
+export { BaseTransactionResult as TransactionResult };
 
-// Solana-specific price types
-interface TokenPrice extends BaseTokenPrice {
+export type TokenSymbol = 'SOL' | 'USDC' | 'BTC' | 'ETH' | string;
+export type DEX = 'jupiter' | 'raydium' | 'pumpfun';
+
+export interface SolanaConfig {
+  rpcEndpoint?: string;
+}
+
+export interface TokenPrice extends BaseTokenPrice {
   exchange: string;
 }
 
-interface PriceBuilder extends BasePriceBuilder {
+export interface PriceBuilder extends BasePriceBuilder {
   jupiter: Promise<number>;
   raydium: Promise<number>;
   pumpfun: Promise<number>;
   then(resolve: (prices: TokenPrice[]) => void): Promise<void>;
 }
 
-interface TransferParams {
+export interface TransferParams {
   token: TokenSymbol;
   to: string;
   amount: string | number;
   from?: Keypair;
 }
 
-interface SwapParams {
+export interface SwapParams {
   from: { 
     token: TokenSymbol; 
     amount: string | number;
@@ -36,35 +41,14 @@ interface SwapParams {
   slippage?: string;
 }
 
-interface TokenMetadata {
+export interface TokenMetadata {
   name: string;
   symbol: string;
   description: string;
   image_description: string;
 }
 
-interface CreateTokenParams {
+export interface CreateTokenParams {
   metadata: TokenMetadata;
   buyAmount?: string | number;
-}
-
-interface SolanaSDK extends BaseChainSDK {
-  price(address: string): PriceBuilder;
-  connect(wallet: Keypair): Promise<WalletInfo>;
-  transfer(params: TransferParams): Promise<TransactionResult>;
-  swap(params: SwapParams): Promise<TransactionResult>;
-  createToken(params: CreateTokenParams): Promise<TransactionResult>;
-}
-
-// Single export point for all types
-export type {
-  TokenSymbol,
-  DEX,
-  TokenPrice,
-  PriceBuilder,
-  TransferParams,
-  SwapParams,
-  TokenMetadata,
-  CreateTokenParams,
-  SolanaSDK
-}; 
+} 
