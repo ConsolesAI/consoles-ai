@@ -262,3 +262,28 @@ export interface GenerateSchemaOptions {
 export type ExtractOptions = UrlExtractOptions | FileExtractOptions | TextExtractOptions | GenerateSchemaOptions;
 
 export type ExtractInput = Exclude<ExtractOptions, { type: 'generate_schema' }> | string;
+
+export type ExtractType = 'text' | 'url' | 'file' | 'generate_schema';
+
+export interface TextExtractOptions extends BaseExtractOptions {
+    type: Extract<ExtractType, 'text'>;
+    content: string;
+}
+
+export interface UrlExtractOptions extends BaseExtractOptions {
+    type: Extract<ExtractType, 'url'>;
+    content: string;
+}
+
+export interface FileExtractOptions extends BaseExtractOptions {
+    type: Extract<ExtractType, 'file'>;
+    content: {
+        data: string;
+        mimeType: string;
+    } | Blob;
+}
+
+export interface GenerateSchemaOptions {
+    type: Extract<ExtractType, 'generate_schema'>;
+    description: string;
+}
