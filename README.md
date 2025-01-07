@@ -1,6 +1,6 @@
 # Consoles
 
-Consoles gives AI applications access to infrastructure and enhanced capabilities through clean, intuitive APIs.
+Simple solutions for powerful features. Built for developers and AI agents.
 
 ## Installation
 ```bash
@@ -62,99 +62,82 @@ const pdfResult = await consoles.extract({
   prompt: 'Extract the main sections and content'
 });
 
-// Example 3: Process uploaded file (e.g., from form input)
-const audioSchema = z.object({
-  transcript: z.string(),
-  speakers: z.array(z.string()),
-  duration: z.number()
-});
-
-// Using File/Blob from form upload
-const fileInput = document.querySelector('input[type="file"]');
-const file = fileInput.files[0];
-const base64Content = await fileToBase64(file);
-
-const audioResult = await consoles.extract({
-  type: 'file',
-  content: {
-    data: base64Content,
-    mimeType: file.type // e.g., 'audio/mp3'
-  },
-  schema: audioSchema
-});
-
-// Example 4: Simple string extraction (shorthand)
-const simpleResult = await consoles.extract(
-  'Extract key information from this text: The weather today is sunny with a high of 75°F'
+// Example 3: Simple string extraction (shorthand)
+const summary = await consoles.extract(
+  'Extract key points from this text...'
 );
-
-// Helper function to convert File to base64
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      // Remove data URL prefix (e.g., "data:application/pdf;base64,")
-      resolve(base64.split(',')[1]);
-    };
-    reader.onerror = reject;
-  });
-}
 ```
 
 ### Web3 SDK (Available Now)
 Blockchain integration for Solana with wallet management, price feeds, and DEX interactions.
 
 ```typescript
-// Initialize Solana with default mainnet RPC
+// Initialize with default mainnet RPC
 const solana = consoles.web3.solana();
 
-// Or use custom network/RPC
-const devnet = consoles.web3.solana({
-  network: 'devnet'  // Uses default devnet RPC
-});
+// Use official devnet
+const devnet = consoles.web3.solana('devnet');
 
+// Use custom RPC
 const custom = consoles.web3.solana({
-  rpc: 'https://your-custom-rpc.com'
+  rpc: 'https://your-rpc.com',
+  network: 'devnet'
 });
 
-// Basic wallet operations
-const wallet = solana.createWallet();
+// Create and manage wallets
+const { wallet } = await solana.createWallet();
+
+// Create vanity wallet (simple)
+const vanity = await solana.createWallet('CAFE');  // Must start with CAFE
+
+// Create vanity wallet (with options)
+const custom = await solana.createWallet({
+  pattern: '*DEAD',   // Must end with DEAD
+  timeout: 60000,     // 60 seconds (default: 30s)
+  strict: false       // Return best match if timeout (default: true)
+});
+
+// Pattern matching options
+await solana.createWallet('CAFE');     // Must start with CAFE
+await solana.createWallet('*DEAD');    // Must end with DEAD
+await solana.createWallet('CAFE*XYZ'); // Start with CAFE, end with XYZ
+
+// Save/load wallets
 const privateKey = solana.getPrivateKey(wallet);
 const loadedWallet = solana.loadWallet(privateKey);
+await solana.connect(loadedWallet);
 
-// Create vanity wallet
-const vanityWallet = solana.createVanityWallet({
-  prefix: 'CAFE',     // Must start with
-  suffix: 'END',      // Must end with
-  contains: 'COOL',   // Must contain somewhere
-  caseSensitive: true // Match exact case
+// Get token prices from multiple DEXs
+const USDC = '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU';
+const prices = await solana.getPrice(USDC);
+console.log('Jupiter price:', prices.jupiter);
+console.log('Raydium price:', prices.raydium);
+
+// Transfer SOL with different confirmation levels
+const tx = await solana.transfer({
+  to: 'address',
+  amount: '0.1',  // SOL
+  priorityFee: 50_000  // Optional: higher priority
 });
 
-// Check token prices across DEXs
-const prices = await solana.price('token-address');
-console.log('Jupiter price:', await prices.jupiter);
-console.log('All prices:', await prices); // Returns prices from multiple DEXs
+// Quick confirmation (most common)
+await tx.confirm();
 
-// Swap tokens
-const swapResult = await solana.swap({
+// Wait for finality (critical transactions)
+await tx.wait('finalized');
+
+// Check status anytime
+const status = await tx.status();  // 'processed' | 'confirmed' | 'finalized'
+
+// Swap tokens with slippage protection
+const swapTx = await solana.swap({
   from: { token: 'SOL', amount: '0.1' },
   to: { token: 'USDC' },
-  dex: 'jupiter',
-  slippage: '100' // 1% slippage
+  slippage: '1'  // 1% slippage
 });
 
-// Create and launch tokens
-const tokenResult = await solana.createToken({
-  metadata: {
-    name: 'My Token',
-    symbol: 'MYTKN',
-    description: 'My awesome token',
-    image_description: 'A cool logo'
-  },
-  buyAmount: '1' // Initial buy in SOL
-});
+// Wait with timeout
+await swapTx.confirm({ timeout: 60000 });  // 1 minute timeout
 ```
 
 ### Browser Infrastructure (Coming Soon)
@@ -164,11 +147,11 @@ Launch and control Chrome or Firefox browsers in the cloud. Perfect for:
 - AI agents that interact with web interfaces
 
 ### Compute (Coming Soon)
-Execute code, run containers, and manage remote systems programmatically:
+Execute code and run containers programmatically:
 - Run LLM generated code in secure sandboxes
 - Deploy Docker containers
-- Control remote machines with real-time WebSocket access
 - Access high-performance GPUs for ML/AI workloads
+- Control remote machines with real-time access
 
 ### Storage (Coming Soon)
 Fast, versioned storage optimized for large files and datasets:

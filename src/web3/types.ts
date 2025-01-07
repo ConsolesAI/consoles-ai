@@ -3,7 +3,9 @@ export type Blockchain = 'solana' | 'ethereum';
 
 export interface TransactionResult {
   signature: string;
-  success: boolean;
+  confirm(options?: { timeout?: number; maxRetries?: number }): Promise<void>;
+  wait(level: 'processed' | 'confirmed' | 'finalized', options?: { timeout?: number; maxRetries?: number }): Promise<void>;
+  status(): Promise<'processed' | 'confirmed' | 'finalized'>;
 }
 
 export interface WalletInfo {
@@ -26,5 +28,5 @@ export interface BasePriceBuilder {
 
 export interface BaseChainSDK {
   connect(wallet: any): Promise<WalletInfo>;
-  price(address: string): BasePriceBuilder;
+  getPrice(address: string, dex?: string): Promise<any>;
 } 

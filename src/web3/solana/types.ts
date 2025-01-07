@@ -30,28 +30,69 @@ export const SOLANA_PROGRAMS = {
 } as const;
 
 // Configuration
-export interface SolanaConfig {
+export type SolanaConfig = {
   rpc?: string;
   network?: SolanaNetwork;
+} | SolanaNetwork | string;
+
+// Transaction Types
+export type ConfirmationLevel = 'processed' | 'confirmed' | 'finalized';
+
+export interface TransactionOptions {
+  timeout?: number;
+  maxRetries?: number;
 }
 
-// Vanity Wallet Options
-export interface SolanaVanityWalletOptions {
-  // Pattern options (must be valid base58)
-  prefix?: string;     // Must start with these characters
-  suffix?: string;     // Must end with these characters
-  contains?: string;   // Must contain these characters
-  // Basic options
-  caseSensitive?: boolean;
-  maxAttempts?: number;
+export interface Transaction {
+  signature: string;
+  confirm(options?: TransactionOptions): Promise<void>;
+  wait(level: ConfirmationLevel, options?: TransactionOptions): Promise<void>;
+  status(): Promise<ConfirmationLevel>;
 }
+
+// Wallet Creation
+export interface WalletOptions {
+  /**
+   * Pattern for matching Solana addresses (base58 characters only)
+   * Examples:
+   * - "CAFE"     -> Must start with CAFE
+   * - "*DEAD"    -> Must end with DEAD
+   * - "CAFE*XYZ" -> Must start with CAFE and end with XYZ
+   */
+  pattern: string;
+  /**
+   * Maximum time (in ms) to spend generating a vanity address
+   * After timeout, returns best attempt or throws if no match
+   * Default: 30000 (30 seconds)
+   */
+  timeout?: number;
+  /**
+   * Whether to throw if no match is found within timeout
+   * If false, returns closest match found so far
+   * Default: true
+   */
+  strict?: boolean;
+}
+
+export interface WalletResult {
+  wallet: Keypair;
+  attempts: number;
+}
+
+/**
+ * Input for createWallet
+ * string shorthand is equivalent to { pattern: string }
+ */
+export type CreateWalletInput = string | WalletOptions;
 
 // Token Types
 export type TokenSymbol = 'SOL' | 'USDC' | 'BTC' | 'ETH' | string;
 export type DEX = 'jupiter' | 'raydium' | 'pumpfun';
 
-export interface TokenPrice extends BaseTokenPrice {
-  exchange: string;
+export interface TokenPrice {
+  jupiter?: number;
+  raydium?: number;
+  [key: string]: number | undefined;  // Allow other DEXs
 }
 
 // Transaction Types
@@ -60,6 +101,10 @@ export interface TransferParams {
   to: string;
   amount: string | number;
   from?: Keypair;
+  // Transaction-specific options
+  priorityFee?: number;
+  computeUnits?: number;
+  maxRetries?: number;
 }
 
 export interface SwapParams {
@@ -70,8 +115,11 @@ export interface SwapParams {
   to: { 
     token: TokenSymbol;
   };
-  dex?: DEX;
   slippage?: string;
+  // Transaction-specific options
+  priorityFee?: number;
+  computeUnits?: number;
+  maxRetries?: number;
 }
 
 // Token Creation
