@@ -4,8 +4,9 @@ import type { ExtractInput, ExtractResponse } from './extract/types';
 import { Browser } from './browser';
 import { VM } from './vm';
 import { Sandbox } from './sandbox';
+import { ConsolesSDK } from './types';
 
-export class Consoles {
+export class Consoles implements ConsolesSDK {
   private _apiKey?: string;
   private _web3?: Web3SDK;
   private _vm?: VM;
@@ -32,6 +33,34 @@ export class Consoles {
     return this._web3;
   }
 
+  /**
+   * Extract structured data from various content types (URLs, files, or text).
+   * 
+   * @param options - Extraction options or content string
+   * @returns Promise<ExtractResponse> - The extracted structured data
+   * 
+   * @example
+   * ```typescript
+   * // Extract from URL
+   * const result = await consoles.extract({
+   *   type: 'url',
+   *   content: 'https://example.com/article',
+   *   schema: {
+   *     type: 'object',
+   *     properties: {
+   *       title: { type: 'string' },
+   *       content: { type: 'string' }
+   *     }
+   *   }
+   * });
+   * 
+   * // Simple text extraction
+   * const result = await consoles.extract("Extract key points from this text");
+   * ```
+   * 
+   * @throws {Error} When API key is not provided
+   * @see {@link https://consoles.ai/docs/extract} Documentation
+   */
   async extract(options: ExtractInput): Promise<ExtractResponse> {
     if (!this._apiKey) {
       throw new Error('API key required for Extract service. Get one at https://consoles.ai');
@@ -68,3 +97,6 @@ export class Consoles {
 }
 
 export default Consoles;
+
+// Re-export types
+export type { ExtractInput, ExtractResponse } from './extract/types';

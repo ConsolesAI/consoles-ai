@@ -1,7 +1,16 @@
-
+// Import extract types first
+import type { ExtractInput, ExtractResponse, ExtractUsage } from './extract/types';
 
 // Re-export Web3 types
 export * from './web3/types';
+
+// Re-export Extract types
+export type { ExtractInput, ExtractResponse, ExtractUsage };
+
+/** Main Consoles SDK interface */
+export interface ConsolesSDK {
+  extract(options: ExtractInput): Promise<ExtractResponse>;
+}
 
 // VM types
 export interface VMOptions {

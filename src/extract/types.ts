@@ -197,23 +197,31 @@ export interface GenerateSchemaOptions {
 export type ExtractOptions = UrlExtractOptions | FileExtractOptions | TextExtractOptions | GenerateSchemaOptions;
 
 /**
- * Valid input for extraction operations.
- * Can be a full options object or a simple string for text extraction.
+ * Extract structured data from various content types (URLs, files, or text).
+ * 
+ * @param options - Extraction options or content string
+ * @returns Promise<ExtractResponse> - The extracted structured data
  * 
  * @example
  * ```typescript
- * // Simple string input
- * "Extract key points from this text"
- * 
- * // Full options object
- * {
- *   type: 'text',
- *   content: 'Your content here...',
+ * // Extract from URL
+ * const result = await consoles.extract({
+ *   type: 'url',
+ *   content: 'https://example.com/article',
  *   schema: {
- *     title: { type: 'string' },
- *     summary: { type: 'string' }
+ *     type: 'object',
+ *     properties: {
+ *       title: { type: 'string' },
+ *       content: { type: 'string' }
+ *     }
  *   }
- * }
+ * });
+ * 
+ * // Simple text extraction
+ * const result = await consoles.extract("Extract key points from this text");
  * ```
+ * 
+ * @throws {Error} When API key is not provided
+ * @see {@link https://consoles.ai/docs/extract} Documentation
  */
 export type ExtractInput = Exclude<ExtractOptions, { type: 'generate_schema' }> | string; 
