@@ -7,7 +7,7 @@ import {
 import { TransactionResult, WalletInfo, BaseChainSDK } from '../types';
 import bs58 from 'bs58';
 
-// Default config values
+/** Internal configuration used by the adapter */
 interface InternalConfig {
   network: SolanaNetwork;
   rpc?: string;
@@ -31,7 +31,11 @@ const DEFAULT_CONFIG: InternalConfig = {
   preflightCommitment: 'processed'
 };
 
-// Internal adapter implementation
+/**
+ * Implementation of the Solana blockchain adapter.
+ * Handles wallet management, transactions, and token operations.
+ * See type definitions for detailed API documentation.
+ */
 class SolanaAdapter implements BaseChainSDK {
   private connection: Connection;
   private _keypair?: Keypair;
@@ -72,17 +76,29 @@ class SolanaAdapter implements BaseChainSDK {
     this.connection = new Connection(rpcUrl, connectionConfig);
   }
 
-  // Get current connection
+  /** Get the current Solana connection instance */
   getConnection(): Connection {
     return this.connection;
   }
 
-  // Get current network
+  /** Get the current network name */
   getNetwork(): SolanaNetwork {
     return this.network;
   }
 
-  // Basic features - no API key needed
+  /**
+   * Creates a new Solana wallet with optional vanity address pattern.
+   * See {@link CreateWalletInput} for input options.
+   * 
+   * @example
+   * ```typescript
+   * // Create regular wallet
+   * const { wallet } = await solana.createWallet();
+   * 
+   * // Create vanity wallet
+   * const { wallet: vanity } = await solana.createWallet('CAFE');
+   * ```
+   */
   async createWallet(input?: CreateWalletInput): Promise<WalletResult> {
     // Simple wallet - no pattern
     if (!input) {
@@ -96,7 +112,7 @@ class SolanaAdapter implements BaseChainSDK {
     const options: WalletOptions = typeof input === 'string' 
       ? { pattern: input }
       : input;
-
+    
     const { 
       pattern,
       timeout = 30000,  // 30 seconds default
@@ -165,14 +181,17 @@ class SolanaAdapter implements BaseChainSDK {
     }
   }
 
+  /** Get the base58-encoded private key from a wallet */
   getPrivateKey(wallet: Keypair): string {
     return bs58.encode(wallet.secretKey);
   }
 
+  /** Load a wallet from a base58-encoded private key */
   loadWallet(privateKey: string): Keypair {
     return Keypair.fromSecretKey(bs58.decode(privateKey));
   }
 
+  /** Connect a wallet to use for transactions */
   async connect(wallet: Keypair): Promise<WalletInfo> {
     this._keypair = wallet;
     return {
@@ -182,7 +201,16 @@ class SolanaAdapter implements BaseChainSDK {
     };
   }
 
-  // Get token price from one or all DEXs
+  /**
+   * Get token price from one or all supported DEXs.
+   * See {@link TokenPrice} for return type details.
+   * 
+   * @example
+   * ```typescript
+   * const prices = await solana.getPrice(tokenAddress);
+   * console.log('Jupiter price:', prices.jupiter);
+   * ```
+   */
   async getPrice(address: string, dex?: 'jupiter' | 'raydium'): Promise<TokenPrice> {
     const prices: TokenPrice = {};
 
@@ -207,7 +235,20 @@ class SolanaAdapter implements BaseChainSDK {
     }
   }
 
-  // Basic transfer - no API key needed
+  /**
+   * Transfer tokens between wallets.
+   * See {@link TransferParams} for parameter details.
+   * 
+   * @example
+   * ```typescript
+   * const tx = await solana.transfer({
+   *   token: 'SOL',
+   *   to: recipientAddress,
+   *   amount: '0.1'
+   * });
+   * await tx.confirm();
+   * ```
+   */
   async transfer({ token = 'SOL', to, amount, from }: TransferParams): Promise<TransactionResult> {
     if (!this._keypair) throw new Error('Wallet not connected');
     // TODO: Implement basic transfer using this.connection
@@ -231,7 +272,19 @@ class SolanaAdapter implements BaseChainSDK {
     };
   }
 
-  // Swap tokens
+  /**
+   * Swap tokens using the best available DEX route.
+   * See {@link SwapParams} for parameter details.
+   * 
+   * @example
+   * ```typescript
+   * const tx = await solana.swap({
+   *   from: { token: 'SOL', amount: '0.1' },
+   *   to: { token: 'USDC' }
+   * });
+   * await tx.confirm();
+   * ```
+   */
   async swap({ from, to, slippage }: SwapParams): Promise<TransactionResult> {
     if (!this._keypair) throw new Error('Wallet not connected');
     // TODO: Implement swap using this.connection and dex APIs
@@ -255,7 +308,22 @@ class SolanaAdapter implements BaseChainSDK {
     };
   }
 
-  // Create token
+  /**
+   * Create a new token with optional metadata.
+   * See {@link CreateTokenParams} for parameter details.
+   * 
+   * @example
+   * ```typescript
+   * const tx = await solana.createToken({
+   *   metadata: {
+   *     name: 'My Token',
+   *     symbol: 'MTK',
+   *     description: 'My custom token'
+   *   }
+   * });
+   * await tx.confirm();
+   * ```
+   */
   async createToken({ metadata, buyAmount }: CreateTokenParams): Promise<TransactionResult> {
     if (!this._keypair) throw new Error('Wallet not connected');
     // TODO: Implement token creation using this.connection
