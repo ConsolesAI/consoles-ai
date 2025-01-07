@@ -1,5 +1,5 @@
 import { Keypair } from "@solana/web3.js";
-import { TransactionResult as BaseTransactionResult, BaseTokenPrice } from '../types';
+import { TransactionResult as BaseTransactionResult } from '../types';
 
 // Re-export TransactionResult
 export { BaseTransactionResult as TransactionResult };

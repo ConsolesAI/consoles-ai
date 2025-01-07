@@ -140,37 +140,56 @@ export class PumpFunProvider {
         "finalized"
       );
 
+      const signature = mint.publicKey.toBase58();
+      const connection = this.connection;
+
       if (createResults.success) {
-        console.log("Success:", `https://pump.fun/${mint.publicKey.toBase58()}`);
+        console.log("Success:", `https://pump.fun/${signature}`);
         const ata = getAssociatedTokenAddressSync(
           mint.publicKey,
           deployer.publicKey,
           false
         );
-        const balance = await this.connection.getTokenAccountBalance(ata, "processed");
+        const balance = await connection.getTokenAccountBalance(ata, "processed");
         const amount = balance.value.uiAmount;
         if (amount === null) {
           console.log(`${deployer.publicKey.toBase58()}:`, "No Account Found");
         } else {
           console.log(`${deployer.publicKey.toBase58()}:`, amount);
         }
-
-        return {
-          success: true,
-          signature: mint.publicKey.toBase58() // Use mint address as signature
-        };
       } else {
         console.log("Create and Buy failed");
-        return {
-          success: false,
-          signature: mint.publicKey.toBase58(),
-        };
       }
+
+      return {
+        signature,
+        async confirm() {
+          await connection.confirmTransaction(signature, 'confirmed');
+        },
+        async wait(level) {
+          await connection.confirmTransaction(signature, level);
+        },
+        async status() {
+          const status = await connection.getSignatureStatus(signature);
+          return status?.value?.confirmationStatus || 'processed';
+        }
+      };
     } catch (error) {
       console.error("Error in createAndBuyToken:", error);
+      const signature = '';
+      const connection = this.connection;
       return {
-        success: false,
-        signature: ''
+        signature,
+        async confirm() {
+          await connection.confirmTransaction(signature, 'confirmed');
+        },
+        async wait(level) {
+          await connection.confirmTransaction(signature, level);
+        },
+        async status() {
+          const status = await connection.getSignatureStatus(signature);
+          return status?.value?.confirmationStatus || 'processed';
+        }
       };
     }
   }
@@ -195,31 +214,50 @@ export class PumpFunProvider {
         priorityFee
       );
 
+      const signature = buyResults.signature || '';
+      const connection = this.connection;
+
       if (buyResults.success) {
         console.log("Success:", `https://pump.fun/${mint.toBase58()}`);
         const ata = getAssociatedTokenAddressSync(mint, buyer.publicKey, false);
-        const balance = await this.connection.getTokenAccountBalance(ata, "processed");
+        const balance = await connection.getTokenAccountBalance(ata, "processed");
         const amount = balance.value.uiAmount;
         if (amount === null) {
           console.log(`${buyer.publicKey.toBase58()}:`, "No Account Found");
         } else {
           console.log(`${buyer.publicKey.toBase58()}:`, amount);
         }
-        return {
-          success: true,
-          signature: buyResults.signature || ''
-        };
-      } else {
-        return {
-          success: false,
-          signature: ''
-        };
       }
+
+      return {
+        signature,
+        async confirm() {
+          await connection.confirmTransaction(signature, 'confirmed');
+        },
+        async wait(level) {
+          await connection.confirmTransaction(signature, level);
+        },
+        async status() {
+          const status = await connection.getSignatureStatus(signature);
+          return status?.value?.confirmationStatus || 'processed';
+        }
+      };
     } catch (error) {
       console.error("Error in buyToken:", error);
+      const signature = '';
+      const connection = this.connection;
       return {
-        success: false,
-        signature: ''
+        signature,
+        async confirm() {
+          await connection.confirmTransaction(signature, 'confirmed');
+        },
+        async wait(level) {
+          await connection.confirmTransaction(signature, level);
+        },
+        async status() {
+          const status = await connection.getSignatureStatus(signature);
+          return status?.value?.confirmationStatus || 'processed';
+        }
       };
     }
   }
@@ -243,31 +281,50 @@ export class PumpFunProvider {
         priorityFee
       );
 
+      const signature = sellResults.signature || '';
+      const connection = this.connection;
+
       if (sellResults.success) {
         console.log("Success:", `https://pump.fun/${mint.toBase58()}`);
         const ata = getAssociatedTokenAddressSync(mint, seller.publicKey, false);
-        const balance = await this.connection.getTokenAccountBalance(ata, "processed");
+        const balance = await connection.getTokenAccountBalance(ata, "processed");
         const amount = balance.value.uiAmount;
         if (amount === null) {
           console.log(`${seller.publicKey.toBase58()}:`, "No Account Found");
         } else {
           console.log(`${seller.publicKey.toBase58()}:`, amount);
         }
-        return {
-          success: true,
-          signature: sellResults.signature || ''
-        };
-      } else {
-        return {
-          success: false,
-          signature: ''
-        };
       }
+
+      return {
+        signature,
+        async confirm() {
+          await connection.confirmTransaction(signature, 'confirmed');
+        },
+        async wait(level) {
+          await connection.confirmTransaction(signature, level);
+        },
+        async status() {
+          const status = await connection.getSignatureStatus(signature);
+          return status?.value?.confirmationStatus || 'processed';
+        }
+      };
     } catch (error) {
       console.error("Error in sellToken:", error);
+      const signature = '';
+      const connection = this.connection;
       return {
-        success: false,
-        signature: ''
+        signature,
+        async confirm() {
+          await connection.confirmTransaction(signature, 'confirmed');
+        },
+        async wait(level) {
+          await connection.confirmTransaction(signature, level);
+        },
+        async status() {
+          const status = await connection.getSignatureStatus(signature);
+          return status?.value?.confirmationStatus || 'processed';
+        }
       };
     }
   }

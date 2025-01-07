@@ -2,8 +2,7 @@ import { Connection, Keypair, ConnectionConfig } from "@solana/web3.js";
 import { 
   TokenPrice, TransferParams, SwapParams, CreateTokenParams, 
   SolanaConfig, WalletOptions, CreateWalletInput, WalletResult,
-  SOLANA_BASE58_CHARS, SOLANA_NETWORKS, SolanaNetwork,
-  LAMPORTS_PER_SOL
+  SOLANA_BASE58_CHARS, SOLANA_NETWORKS, SolanaNetwork
 } from './types';
 import { TransactionResult, WalletInfo, BaseChainSDK } from '../types';
 import bs58 from 'bs58';
@@ -35,18 +34,11 @@ const DEFAULT_CONFIG: InternalConfig = {
 // Internal adapter implementation
 class SolanaAdapter implements BaseChainSDK {
   private connection: Connection;
-  private readonly apiKey?: string;
   private _keypair?: Keypair;
   private network: SolanaNetwork;
-  private priorityFee: number;
-  private computeUnits: number;
-  private skipPreflight: boolean;
-  private maxRetries: number;
   private jupiterBaseUrl = 'https://price.jup.ag/v4';
 
-  constructor(apiKey?: string, config: SolanaConfig = DEFAULT_CONFIG) {
-    this.apiKey = apiKey;
-    
+  constructor(config: SolanaConfig = DEFAULT_CONFIG) {
     // Parse config
     let finalConfig: InternalConfig = { ...DEFAULT_CONFIG };
     
@@ -78,12 +70,6 @@ class SolanaAdapter implements BaseChainSDK {
       confirmTransactionInitialTimeout: finalConfig.confirmTransactionInitialTimeout
     };
     this.connection = new Connection(rpcUrl, connectionConfig);
-
-    // Store other config values for later use
-    this.priorityFee = finalConfig.priorityFee;
-    this.computeUnits = finalConfig.computeUnits;
-    this.skipPreflight = finalConfig.skipPreflight;
-    this.maxRetries = finalConfig.maxRetries;
   }
 
   // Get current connection
@@ -222,7 +208,7 @@ class SolanaAdapter implements BaseChainSDK {
   }
 
   // Basic transfer - no API key needed
-  async transfer({ token = 'SOL', to, amount, from, priorityFee, computeUnits, maxRetries }: TransferParams): Promise<TransactionResult> {
+  async transfer({ token = 'SOL', to, amount, from }: TransferParams): Promise<TransactionResult> {
     if (!this._keypair) throw new Error('Wallet not connected');
     // TODO: Implement basic transfer using this.connection
     console.log('Transfer:', { token, to, amount, from: from?.publicKey.toString() });
@@ -232,10 +218,10 @@ class SolanaAdapter implements BaseChainSDK {
     
     return {
       signature,
-      async confirm(options = {}) {
+      async confirm() {
         await connection.confirmTransaction(signature, 'confirmed');
       },
-      async wait(level, options = {}) {
+      async wait(level) {
         await connection.confirmTransaction(signature, level);
       },
       async status() {
@@ -246,7 +232,7 @@ class SolanaAdapter implements BaseChainSDK {
   }
 
   // Swap tokens
-  async swap({ from, to, slippage, priorityFee, computeUnits, maxRetries }: SwapParams): Promise<TransactionResult> {
+  async swap({ from, to, slippage }: SwapParams): Promise<TransactionResult> {
     if (!this._keypair) throw new Error('Wallet not connected');
     // TODO: Implement swap using this.connection and dex APIs
     console.log('Swap:', { from, to, slippage });
@@ -256,10 +242,10 @@ class SolanaAdapter implements BaseChainSDK {
     
     return {
       signature,
-      async confirm(options = {}) {
+      async confirm() {
         await connection.confirmTransaction(signature, 'confirmed');
       },
-      async wait(level, options = {}) {
+      async wait(level) {
         await connection.confirmTransaction(signature, level);
       },
       async status() {
@@ -280,10 +266,10 @@ class SolanaAdapter implements BaseChainSDK {
     
     return {
       signature,
-      async confirm(options = {}) {
+      async confirm() {
         await connection.confirmTransaction(signature, 'confirmed');
       },
-      async wait(level, options = {}) {
+      async wait(level) {
         await connection.confirmTransaction(signature, level);
       },
       async status() {
