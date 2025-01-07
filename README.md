@@ -10,9 +10,11 @@ npm install consoles-ai
 ## Quick Start
 ```typescript
 import { Consoles } from 'consoles-ai';
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Initialize SDK with your API key
-const consoles = new Consoles('your-api-key');
+const consoles = new Consoles(process.env.CONSOLES_API_KEY);
 ```
 
 ## Available Products
@@ -21,7 +23,11 @@ const consoles = new Consoles('your-api-key');
 Transform any content into structured data with AI. Supports text, PDFs, audio, video, and more.
 
 ```typescript
+import { Consoles } from 'consoles-ai';
 import { z } from 'zod';
+
+// Initialize SDK with your API key
+const consoles = new Consoles('your-api-key');
 
 // Example 1: Simple text extraction with Zod schema
 const productSchema = z.object({
@@ -36,14 +42,14 @@ const textResult = await consoles.extract({
   content: `
     New iPhone 15 Pro
     Price: $999
-    Experience the most powerful iPhone ever.
+    Experience the most powerful iPhone ever with revolutionary A17 Pro chip.
     Currently available in all stores.
   `,
   schema: productSchema
 });
 
-// Example 2: Process PDF from URL
-const pdfSchema = z.object({
+// Example 2: Process PDF from file
+const fileSchema = z.object({
   title: z.string(),
   sections: z.array(z.object({
     heading: z.string(),
@@ -52,13 +58,13 @@ const pdfSchema = z.object({
   totalPages: z.number()
 });
 
-const pdfResult = await consoles.extract({
+const fileResult = await consoles.extract({
   type: 'file',
   content: {
-    url: 'https://example.com/document.pdf',
+    data: 'base64EncodedFileContent',
     mimeType: 'application/pdf'
   },
-  schema: pdfSchema,
+  schema: fileSchema,
   prompt: 'Extract the main sections and content'
 });
 
@@ -72,62 +78,58 @@ const summary = await consoles.extract(
 Blockchain integration for Solana with wallet management, price feeds, and DEX interactions.
 
 ```typescript
-// Initialize with default mainnet RPC
+import { Consoles } from 'consoles-ai';
+import dotenv from 'dotenv';
+dotenv.config();
+
+// Initialize SDK with your API key
+const consoles = new Consoles(process.env.CONSOLES_API_KEY);
+
+// Initialize Solana (defaults to mainnet)
 const solana = consoles.web3.solana();
 
-// Use official devnet
-const devnet = consoles.web3.solana('devnet');
-
-// Use custom RPC
+// Or use custom RPC/network
 const custom = consoles.web3.solana({
-  rpc: 'https://your-rpc.com',
+  rpc: 'https://my-rpc.com',
   network: 'devnet'
 });
 
-// Create and manage wallets
+// Create regular wallet
 const { wallet } = await solana.createWallet();
 
 // Create vanity wallet (simple)
-const vanity = await solana.createWallet('CAFE');  // Must start with CAFE
+const { wallet: vanityWallet } = await solana.createWallet('CAFE');
 
 // Create vanity wallet (with options)
-const custom = await solana.createWallet({
-  pattern: '*DEAD',   // Must end with DEAD
-  timeout: 60000,     // 60 seconds (default: 30s)
-  strict: false       // Return best match if timeout (default: true)
+const { wallet: customVanity } = await solana.createWallet({
+  pattern: 'CAFE*XYZ',  // Start with CAFE, end with XYZ
+  timeout: 60000,       // 60 seconds (default: 30s)
+  strict: false         // Return best match if timeout
 });
-
-// Pattern matching options
-await solana.createWallet('CAFE');     // Must start with CAFE
-await solana.createWallet('*DEAD');    // Must end with DEAD
-await solana.createWallet('CAFE*XYZ'); // Start with CAFE, end with XYZ
 
 // Save/load wallets
 const privateKey = solana.getPrivateKey(wallet);
 const loadedWallet = solana.loadWallet(privateKey);
 await solana.connect(loadedWallet);
 
-// Get token prices from multiple DEXs
+// Get token prices
 const USDC = '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU';
 const prices = await solana.getPrice(USDC);
-console.log('Jupiter price:', prices.jupiter);
-console.log('Raydium price:', prices.raydium);
+console.log('All prices:', prices);
 
 // Transfer SOL with different confirmation levels
 const tx = await solana.transfer({
-  to: 'address',
-  amount: '0.1',  // SOL
+  token: 'SOL',
+  to: vanityWallet.publicKey.toString(),
+  amount: '0.1',
   priorityFee: 50_000  // Optional: higher priority
 });
 
-// Quick confirmation (most common)
+// Wait for confirmation (most common)
 await tx.confirm();
 
-// Wait for finality (critical transactions)
+// Or wait for finality (critical transactions)
 await tx.wait('finalized');
-
-// Check status anytime
-const status = await tx.status();  // 'processed' | 'confirmed' | 'finalized'
 
 // Swap tokens with slippage protection
 const swapTx = await solana.swap({
@@ -141,30 +143,17 @@ await swapTx.confirm({ timeout: 60000 });  // 1 minute timeout
 ```
 
 ### Browser Infrastructure (Coming Soon)
-Launch and control Chrome or Firefox browsers in the cloud. Perfect for:
-- Web scraping and data collection
-- Automated testing and monitoring
-- AI agents that interact with web interfaces
+Launch and control Chrome or Firefox browsers in the cloud.
 
 ### Compute (Coming Soon)
-Execute code and run containers programmatically:
-- Run LLM generated code in secure sandboxes
-- Deploy Docker containers
-- Access high-performance GPUs for ML/AI workloads
-- Control remote machines with real-time access
+Execute code and run containers programmatically
 
 ### Storage (Coming Soon)
-Fast, versioned storage optimized for large files and datasets:
-- Store and version ML models
-- Manage training datasets
-- Cache AI computation results
-- Built-in CDN and access controls
+Fast, affordable storage distributed across the globe
 
 ### Tools Platform (Coming Soon)
-Deploy and manage custom functions that run on our edge network:
-- Create custom functions for LLMs
-- Build AI agent tools and actions
-- Deploy serverless API endpoints
+Deploy tools/functions that scale automatically
+
 
 ## Links
 
