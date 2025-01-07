@@ -19,7 +19,7 @@ const consoles = new Consoles(process.env.CONSOLES_API_KEY);
 
 ## Available Products
 
-### Extract API (Available Now)
+### Extract
 Transform any content into structured data with AI. Supports text, PDFs, audio, video, and more.
 
 ```typescript
@@ -74,7 +74,7 @@ const summary = await consoles.extract(
 );
 ```
 
-### Web3 SDK (Available Now)
+### Web3 
 Blockchain integration for Solana with wallet management, price feeds, and DEX interactions.
 
 ```typescript
@@ -142,7 +142,7 @@ const swapTx = await solana.swap({
 await swapTx.confirm({ timeout: 60000 });  // 1 minute timeout
 ```
 
-### Browser Infrastructure (Coming Soon)
+### Browsers (Coming Soon)
 Launch and control Chrome or Firefox browsers in the cloud.
 
 ### Compute (Coming Soon)
