@@ -141,17 +141,17 @@ const swapTx = await solana.swap({
 // Wait with timeout
 await swapTx.confirm({ timeout: 60000 });  // 1 minute timeout
 ```
-
-### Browsers (Coming Soon)
+## Coming Soon
+### Browsers
 Launch and control Chrome or Firefox browsers in the cloud.
 
-### Compute (Coming Soon)
+### Compute
 Execute code and run containers programmatically
 
-### Storage (Coming Soon)
+### Storage
 Fast, affordable storage distributed across the globe
 
-### Tools Platform (Coming Soon)
+### Tools Platform
 Deploy tools/functions that scale automatically
 
 
