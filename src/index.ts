@@ -41,7 +41,6 @@ export class Consoles implements ConsolesSDK {
    * 
    * @example
    * ```typescript
-   * // Extract from URL
    * const result = await consoles.extract({
    *   type: 'url',
    *   content: 'https://example.com/article',
@@ -53,9 +52,6 @@ export class Consoles implements ConsolesSDK {
    *     }
    *   }
    * });
-   * 
-   * // Simple text extraction
-   * const result = await consoles.extract("Extract key points from this text");
    * ```
    * 
    * @throws {Error} When API key is not provided

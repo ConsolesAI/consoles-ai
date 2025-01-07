@@ -1,227 +1,264 @@
 import { z } from 'zod';
 
-/**
- * Usage statistics for an extraction operation.
- * Provides detailed information about token usage and costs.
- */
 export interface ExtractUsage {
-    /** Number of tokens in the input content */
     input_tokens: number;
-    /** Number of tokens in the extracted output */
     output_tokens: number;
-    /** Total tokens processed in the operation */
     total_tokens: number;
-    /** Cost of processing input tokens (in USD) */
     input_cost: string;
-    /** Cost of generating output tokens (in USD) */
     output_cost: string;
-    /** Total cost of the operation (in USD) */
     total_cost: string;
 }
 
-/**
- * Response from a successful extraction operation.
- * Contains the extracted data and usage statistics.
- * 
- * @example
- * ```typescript
- * {
- *   id: "ext_abc123",
- *   status: "success",
- *   result: {
- *     title: "Example Article",
- *     author: "John Doe",
- *     content: "..."
- *   },
- *   usage: {
- *     input_tokens: 150,
- *     output_tokens: 50,
- *     total_tokens: 200,
- *     input_cost: "$0.002",
- *     output_cost: "$0.001",
- *     total_cost: "$0.003"
- *   }
- * }
- * ```
- */
 export interface ExtractResponse {
-    /** Unique identifier for this extraction operation */
     id: string;
-    /** Status of the operation (always "success" for successful responses) */
     status: 'success';
-    /** Extracted data, structure depends on the schema provided */
     result: any;
-    /** Usage statistics for the operation */
     usage: ExtractUsage;
 }
 
 /**
- * Base options available for all extraction types.
- * These options help guide the AI in extracting the desired information.
+ * Base options for all extract operations
+ * @example
+ * ```typescript
+ * // Example with a simple schema
+ * const options: BaseExtractOptions = {
+ *   schema: {
+ *     type: 'object',
+ *     properties: {
+ *       title: { type: 'string' },
+ *       price: { type: 'number' },
+ *       inStock: { type: 'boolean' }
+ *     }
+ *   }
+ * }
+ * 
+ * // Example with a complex schema
+ * const options: BaseExtractOptions = {
+ *   schema: {
+ *     type: 'object',
+ *     properties: {
+ *       products: {
+ *         type: 'array',
+ *         items: {
+ *           type: 'object',
+ *           properties: {
+ *             name: { type: 'string' },
+ *             variants: {
+ *               type: 'array',
+ *               items: { type: 'string' }
+ *             }
+ *           }
+ *         }
+ *       }
+ *     }
+ *   },
+ *   prompt: "Extract product information focusing on variants"
+ * }
+ * ```
  */
 export interface BaseExtractOptions {
     /** 
-     * Custom prompt to guide the extraction process.
-     * Use this to specify what information you want to extract or how to interpret the content.
-     * @example "Extract the main points and summarize the key findings"
+     * Optional prompt to guide the extraction process.
+     * Use this to specify additional context or focus areas.
+     * @example
+     * prompt: "Extract only pricing information and availability"
+     * prompt: "Focus on technical specifications in the content"
      */
     prompt?: string;
+
     /** 
-     * Schema definition using either Zod or JSON Schema.
-     * Defines the structure of the data you want to extract.
+     * Schema definition for the expected output structure.
+     * Supports both Zod schemas and plain JSON Schema objects.
+     * Common types: string, number, boolean, array, object
      * @example
      * ```typescript
-     * // Using Zod
-     * z.object({
-     *   title: z.string(),
-     *   author: z.string(),
-     *   date: z.string()
-     * })
-     * 
-     * // Using JSON Schema
-     * {
+     * // JSON Schema style
+     * schema: {
      *   type: 'object',
      *   properties: {
      *     title: { type: 'string' },
-     *     author: { type: 'string' },
-     *     date: { type: 'string' }
+     *     metadata: {
+     *       type: 'object',
+     *       properties: {
+     *         tags: { type: 'array', items: { type: 'string' } }
+     *       }
+     *     }
      *   }
      * }
+     * 
+     * // Zod schema style
+     * schema: z.object({
+     *   title: z.string(),
+     *   metadata: z.object({
+     *     tags: z.array(z.string())
+     *   })
+     * })
      * ```
      */
     schema?: z.ZodType<any> | Record<string, any>;
+
     /** 
-     * Natural language description of the schema.
-     * Alternative to providing a formal schema.
-     * @example "Extract the title, author name, and publication date"
+     * Human-readable description of what the schema represents.
+     * Use this to provide context about the expected data structure.
+     * @example
+     * "Product catalog with nested variants and pricing information"
+     * "Article content with metadata and author details"
      */
     schemaDescription?: string;
-    /** Whether to stream results as they become available */
+
+    /** 
+     * Enable streaming of extraction results.
+     * Useful for processing large documents or getting partial results faster.
+     */
     stream?: boolean;
 }
 
 /**
- * Options for extracting data from a URL.
- * The service will fetch and process the content at the specified URL.
- * 
+ * Options for extracting data from a URL
  * @example
  * ```typescript
- * {
- *   type: 'url',
- *   content: 'https://example.com/article',
- *   prompt: 'Extract the main points and author information',
+ * // Example: Extract financial data from annual report PDF
+ * const urlExtract: UrlExtractOptions = {
+ *   type: 'url',  // Specify 'url' for URL-based extraction
+ *   content: 'https://www.annualreports.com/HostedData/AnnualReports/PDF/NYSE_NET_2023.pdf',
  *   schema: {
- *     title: { type: 'string' },
- *     author: { type: 'string' },
- *     content: { type: 'string' }
+ *     type: 'object',
+ *     required: ['revenue', 'netIncome'],
+ *     properties: {
+ *       revenue: {
+ *         type: 'number',
+ *         description: 'Total revenue in millions USD'
+ *       },
+ *       netIncome: {
+ *         type: 'number',
+ *         description: 'Net income in millions USD'
+ *       }
+ *     }
  *   }
  * }
  * ```
  */
 export interface UrlExtractOptions extends BaseExtractOptions {
-    /** Type of extraction */
+    /** 
+     * Specify 'url' for URL-based extraction.
+     * Use this type when you want to extract data from a webpage or downloadable file (PDF, etc).
+     * The URL must be publicly accessible and start with http:// or https://.
+     * @example
+     * type: 'url'
+     */
     type: 'url';
-    /** URL to extract content from */
+    /** 
+     * The URL to extract data from.
+     * Supports both http and https URLs.
+     * @example
+     * 'https://example.com/article/123'
+     * 'https://store.example.com/products'
+     */
     content: string;
 }
 
 /**
- * Options for extracting data from a file.
- * Supports various file types including PDFs, images, and more.
- * 
+ * Options for extracting data from a file
  * @example
  * ```typescript
- * {
- *   type: 'file',
+ * // Example 1: Extract from PDF using base64
+ * const fileExtract: FileExtractOptions = {
+ *   type: 'file',  // Specify 'file' for file-based extraction
  *   content: {
- *     data: base64EncodedContent,
+ *     data: 'JVBERi0xLjcKCjEgMCBvYmogICUgZW50...',
  *     mimeType: 'application/pdf'
  *   },
- *   prompt: 'Extract the executive summary and key findings'
+ *   schema: {
+ *     type: 'object',
+ *     required: ['title', 'author'],
+ *     properties: {
+ *       title: { type: 'string' },
+ *       author: { type: 'string' }
+ *     }
+ *   }
+ * }
+ * 
+ * // Example 2: Extract from file using Blob
+ * const blobExtract: FileExtractOptions = {
+ *   type: 'file',
+ *   content: new Blob(['file contents'], { type: 'text/plain' }),
+ *   schema: {
+ *     type: 'object',
+ *     properties: {
+ *       text: { type: 'string' },
+ *       summary: { type: 'string' }
+ *     }
+ *   }
  * }
  * ```
  */
 export interface FileExtractOptions extends BaseExtractOptions {
-    /** Type of extraction */
+    /** 
+     * Specify 'file' for file-based extraction.
+     * Supports multiple file types:
+     * - Documents: PDF, DOCX, DOC, TXT, RTF
+     * - Audio: MP3, WAV, M4A, OGG
+     * - Video: MP4, MOV, AVI, MKV
+     * - Images: JPG, PNG, WEBP
+     * 
+     * Files are processed in 10MB chunks.
+     * @example
+     * type: 'file'
+     */
     type: 'file';
-    /** File content as base64 string or Blob */
+    /** 
+     * The file content and type information.
+     * Supports both string data with mimeType or Blob objects.
+     * Common mimeTypes: application/pdf, text/plain, application/json
+     */
     content: {
-        /** Base64 encoded file data */
         data: string;
-        /** MIME type of the file (e.g., 'application/pdf', 'image/jpeg') */
         mimeType: string;
     } | Blob;
 }
 
 /**
- * Options for extracting data from plain text.
- * 
+ * Options for extracting data from plain text
  * @example
  * ```typescript
- * {
- *   type: 'text',
- *   content: 'Your text content here...',
+ * // Example: Extract product details from text
+ * const textExtract: TextExtractOptions = {
+ *   type: 'text',  // Specify 'text' for plain text extraction
+ *   content: 'The new iPhone 15 Pro Max features a 6.7" display at $1099, it's 5G enabled and has a 12MP camera',
  *   schema: {
- *     summary: { type: 'string' },
- *     keywords: { type: 'array', items: { type: 'string' } }
- *   }
+ *     type: 'object',
+ *     required: ['model', 'price'],
+ *     properties: {
+ *       model: { type: 'string' },
+ *       price: { type: 'number' },
+ *       features: {
+ *         type: 'array',
+ *         items: { type: 'string' }
+ *       }
+ *     }
+ *   },
+ *   prompt: "Extract product specifications and pricing information"
  * }
  * ```
  */
 export interface TextExtractOptions extends BaseExtractOptions {
-    /** Type of extraction */
+    /** 
+     * Specify 'text' for plain text extraction.
+     * Use this type when you have raw text content to analyze.
+     * Ideal for processing product descriptions, articles, or any textual content.
+     * @example
+     * type: 'text'
+     */
     type: 'text';
-    /** Text content to extract from */
+    /** The text content to extract data from */
     content: string;
 }
 
-/**
- * Options for generating a schema based on a description.
- * 
- * @example
- * ```typescript
- * {
- *   type: 'generate_schema',
- *   description: 'Generate a schema for extracting product information including name, price, and features'
- * }
- * ```
- */
 export interface GenerateSchemaOptions {
-    /** Type of operation */
     type: 'generate_schema';
-    /** Description of the data structure you want to generate */
     description: string;
 }
 
-/** All possible extraction option types */
 export type ExtractOptions = UrlExtractOptions | FileExtractOptions | TextExtractOptions | GenerateSchemaOptions;
 
-/**
- * Extract structured data from various content types (URLs, files, or text).
- * 
- * @param options - Extraction options or content string
- * @returns Promise<ExtractResponse> - The extracted structured data
- * 
- * @example
- * ```typescript
- * // Extract from URL
- * const result = await consoles.extract({
- *   type: 'url',
- *   content: 'https://example.com/article',
- *   schema: {
- *     type: 'object',
- *     properties: {
- *       title: { type: 'string' },
- *       content: { type: 'string' }
- *     }
- *   }
- * });
- * 
- * // Simple text extraction
- * const result = await consoles.extract("Extract key points from this text");
- * ```
- * 
- * @throws {Error} When API key is not provided
- * @see {@link https://consoles.ai/docs/extract} Documentation
- */
-export type ExtractInput = Exclude<ExtractOptions, { type: 'generate_schema' }> | string; 
+export type ExtractInput = Exclude<ExtractOptions, { type: 'generate_schema' }> | string;
