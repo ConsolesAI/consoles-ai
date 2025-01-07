@@ -26,7 +26,7 @@ export class Web3SDK {
   // Future endpoint methods will use this.apiKey for authentication
 }
 
-// Export all types
+// Export all types and implementations
 export * from './types';
 export * from './solana/types';
 

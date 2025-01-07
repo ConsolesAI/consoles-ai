@@ -1,5 +1,6 @@
 import { Web3SDK } from './web3';
-import { Extract, ExtractInstance } from './extract';
+import { extract } from './extract/index';
+import type { ExtractInput, ExtractResponse } from './extract/types';
 import { Browser } from './browser';
 import { VM } from './vm';
 import { Sandbox } from './sandbox';
@@ -7,7 +8,6 @@ import { Sandbox } from './sandbox';
 export class Consoles {
   private _apiKey?: string;
   private _web3?: Web3SDK;
-  private _extract?: ExtractInstance;
   private _vm?: VM;
   private _sandbox?: Sandbox;
 
@@ -20,7 +20,6 @@ export class Consoles {
     this._apiKey = apiKey;
     // Reset instances so they'll be recreated with new API key
     this._web3 = undefined;
-    this._extract = undefined;
     this._vm = undefined;
     this._sandbox = undefined;
   }
@@ -33,14 +32,11 @@ export class Consoles {
     return this._web3;
   }
 
-  get extract() {
-    if (!this._extract) {
-      if (!this._apiKey) {
-        throw new Error('API key required for Extract service. Get one at https://consoles.ai');
-      }
-      this._extract = Extract({ apiKey: this._apiKey });
+  async extract(options: ExtractInput): Promise<ExtractResponse> {
+    if (!this._apiKey) {
+      throw new Error('API key required for Extract service. Get one at https://consoles.ai');
     }
-    return this._extract;
+    return extract(this._apiKey, options);
   }
 
   browser(profile: string) {

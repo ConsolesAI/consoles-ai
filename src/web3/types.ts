@@ -1,7 +1,7 @@
 // Base types shared across chains
 export type Blockchain = 'solana' | 'ethereum';
 
-// Interface for TypeScript
+// Type definition
 export interface TransactionResult {
     signature: string;
     confirm(options?: { timeout?: number; maxRetries?: number }): Promise<void>;
@@ -9,8 +9,8 @@ export interface TransactionResult {
     status(): Promise<'processed' | 'confirmed' | 'finalized'>;
 }
 
-// Runtime export for ESM imports
-export const TransactionResult = {} as TransactionResult;
+// Minimal runtime export needed for ESM imports
+export const TransactionResult = {};
 
 export interface WalletInfo {
     address: string;
