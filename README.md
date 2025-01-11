@@ -10,55 +10,352 @@ npm install consoles-ai
 ## Quick Start
 ```typescript
 import { Consoles } from 'consoles-ai';
+import dotenv from 'dotenv';
+dotenv.config();
 
-// Initialize with defaults (mainnet)
+// Initialize SDK with your API key
 const consoles = new Consoles(process.env.CONSOLES_API_KEY);
-const solana = consoles.web3.solana();
+```
 
-// Or customize your RPC
-const custom = consoles.web3.solana({
-  rpc: 'https://your-rpc.com',
-  network: 'devnet'
+## Available Products
+
+### Extract
+Transform any content into structured data with AI. Supports text, PDFs, audio, video, and more.
+
+```typescript
+import { Consoles } from 'consoles-ai';
+import { z } from 'zod';
+
+// Initialize SDK with your API key
+const consoles = new Consoles('your-api-key');
+
+// Example 1: Simple text extraction with Zod schema
+const productSchema = z.object({
+  name: z.string(),
+  price: z.number(),
+  description: z.string(),
+  inStock: z.boolean().optional(),
 });
 
-// Get any token's price - that's it!
-const prices = await solana.getPrice('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
+const textResult = await consoles.extract({
+  type: 'text',
+  content: `
+    New iPhone 15 Pro
+    Price: $999
+    Experience the most powerful iPhone ever with revolutionary A17 Pro chip.
+    Currently available in all stores.
+  `,
+  schema: productSchema
+});
+
+// Example 2: Process PDF from file
+const fileSchema = z.object({
+  title: z.string(),
+  sections: z.array(z.object({
+    heading: z.string(),
+    content: z.string()
+  })),
+  totalPages: z.number()
+});
+
+const fileResult = await consoles.extract({
+  type: 'file',
+  content: {
+    data: 'base64EncodedFileContent',
+    mimeType: 'application/pdf'
+  },
+  schema: fileSchema,
+  prompt: 'Extract the main sections and content'
+});
+
+// Example 3: Simple string extraction (shorthand)
+const summary = await consoles.extract(
+  'Extract key points from this text...'
+);
+```
+
+### Web3 
+Blockchain integration for Solana with wallet management, price feeds, and DEX interactions.
+
+```typescript
+import { Consoles } from 'consoles-ai';
+import dotenv from 'dotenv';
+dotenv.config();
+
+// Initialize SDK with your API key
+const consoles = new Consoles(process.env.CONSOLES_API_KEY);
+// Initialize Solana (defaults to mainnet)
+// to use custom RPC, pass in a custom RPC: consoles.web3.solana({ rpc: 'https://rpc.example.com'} )
+
+const solana = consoles.web3.solana()
+
+// Get token info
+const USDC = '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU';
+const prices = await solana.getPrice(USDC);
 console.log('USDC Price:', prices);
 
-// Check portfolio value in USD, SOL, or any token
-const portfolio = await solana.portfolio(address);
+const trustScore = await solana.getTrustScore(USDC);
+console.log('Trust Score:', trustScore.score.toFixed(2));
+
+// Check any wallet's portfolio
+const whaleAddress = "DYtKhdXCSxX8SfdmhPSGmZwTLC9Ld1jxvPHNuRoTL6Vr";
+const portfolio = await solana.portfolio(whaleAddress);
 const totals = await portfolio.total();
-console.log(`In USD: $${totals.usd}`);
-console.log(`In SOL: ${totals.sol} SOL`);
-console.log(`In BONK: ${(await portfolio.total('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263')).token}`);
+console.log(`Portfolio Value: $${totals.usd}`);
+console.log('Holdings:', portfolio.tokens.map(t => 
+  `${t.symbol}: ${t.amount} ($${t.value})`
+));
 
-// Send tokens - simple as that
+// Create and connect wallet
+const { wallet } = await solana.createWallet();
+await solana.connect(wallet);
+console.log('Wallet:', wallet.publicKey);
+
+// Send tokens with custom priority fee and compute units
 const tx = await solana.send({
-  to: receiver,
-  amount: '1.5',        // amount in USDC
-  token: 'USDC'
+  to: whaleAddress,
+  amount: '0.0000001', 
+  token: 'SOL',
+  config: {
+    priorityFee: 100_000, // Priority fee in microlamports (0.0001 SOL)
+    computeUnits: 200_000 // Maximum compute units for transaction
+  }
 });
 
-// Or send USD amount directly
-const tx2 = await solana.send({
-  to: receiver,
-  amount: '$50',        // amount in USD
-  token: 'SOL'         // will convert to SOL automatically
-});
+console.log('Transaction:', tx.id);
 
-// Swap tokens with 1-line
+// Swap tokens
 const swap = await solana.swap({
   from: { token: 'SOL', amount: '0.1' },
-  to: { token: 'USDC' }
+  to: { token: 'USDC' },
+  config: { slippage: '1' }
+});
+console.log('Swap:', swap.id);
+
+// Wait for confirmation
+let status = await solana.status(tx.id);
+while (status !== 'confirmed') {
+  await new Promise(r => setTimeout(r, 1000));
+  status = await solana.status(tx.id);
+}
+console.log('Confirmed!');
+```
+
+#### Interactive Wallet Example
+```typescript
+// Initialize SDK
+const consoles = new Consoles('your-api-key');
+const solana = consoles.web3.solana();
+
+// Portfolio explorer example
+const defaultAddress = 'DYtKhdXCSxX8SfdmhPSGmZwTLC9Ld1jxvPHNuRoTL6Vr'; // Mango DAO
+const portfolio = await solana.portfolio(defaultAddress);
+  
+// Get basic portfolio totals (USD and SOL)
+const totals = await portfolio.total();
+console.log('\nBasic Portfolio Totals:', {
+  usd: totals.usd,
+  sol: totals.sol
+});
+
+// Get value in USDC from different sources
+const usdcAddress = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+
+// Get best price across all DEXs
+const inUsdc = await portfolio.total(usdcAddress);
+
+// Get price from specific DEXs
+const fromJupiter = await portfolio.total(usdcAddress, 'jupiter');
+const fromPumpFun = await portfolio.total(usdcAddress, 'pumpfun');
+
+console.log('\nPortfolio Value in USDC:', {
+  bestPrice: inUsdc.token,
+  jupiter: fromJupiter.token,
+  pumpfun: fromPumpFun.token
+});
+
+// Connect and perform transactions
+const connected = await solana.connect(privateKey);
+console.log('Connected wallet:', connected.address);
+
+const beforeValue = await solana.value();
+console.log('\nInitial portfolio value:', {
+  usd: beforeValue.usd,
+  sol: beforeValue.sol
+});
+
+// Send SOL example
+const receiverAddress = 'Fn3ws5v5qoTX4zkTWDfMxHmrMBJAn1zzGuYgLXjrhn5K';
+const tx1 = await solana.send({
+  to: receiverAddress,
+  amount: '$1',
+  token: 'SOL',
+  config: {
+    priorityFee: 100_000
+  }
+});
+
+console.log('Transaction sent:', tx1.id);
+await tx1.confirm();
+console.log(`View transaction: https://solscan.io/tx/${tx1.id}`);
+
+// Swap tokens example
+const tx2 = await solana.swap({
+  from: { token: 'SOL', amount: '$5' },
+  to: { token: 'USDC' },
+  config: {
+    slippage: '1',
+    priorityFee: 100_000
+  }
+});
+
+console.log('Swap sent:', tx2.id);
+await tx2.confirm();
+console.log(`View transaction: https://solscan.io/tx/${tx2.id}`);
+
+const afterValue = await solana.value();
+console.log('\nFinal portfolio value:', {
+  usd: afterValue.usd,
+  sol: afterValue.sol
 });
 ```
 
-## Features
-- 🚀 Simple, intuitive API that just works
-- 🔍 Read-only operations (prices, portfolios)
-- 💸 Token operations (send, swap)
-- ⚡️ Custom RPC support
-- 🌐 Multi-DEX price sources
+## Coming Soon
+### Browsers
+Launch and control Chrome or Firefox browsers in the cloud.
+
+### Compute
+Execute code and run containers programmatically
+
+### Storage
+Fast, affordable storage distributed across the globe
+
+### Tools Platform
+Deploy tools/functions that scale automatically
+
 
 ## Links
+
 [Documentation](https://docs.consoles.ai) • [Discord](https://discord.gg/consoles) • [Support](mailto:support@consoles.ai)
+
+## Web3 SDK
+
+Simple interface for Solana blockchain operations. Supports read-only operations without a wallet, and transaction operations with a connected wallet.
+
+```typescript
+import { Consoles } from '@consoles/sdk';
+
+// Initialize SDK
+const consoles = new Consoles(process.env.CONSOLES_API_KEY);
+const solana = consoles.web3.solana();
+
+// Read-only operations (no wallet needed)
+const USDC = '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU';
+const prices = await solana.getPrice(USDC);
+console.log('USDC Price:', prices);
+
+const trustScore = await solana.getTrustScore(USDC);
+console.log('Trust Score:', trustScore.score);
+
+// Check any wallet's portfolio
+const whaleAddress = "DYtKhdXCSxX8SfdmhPSGmZwTLC9Ld1jxvPHNuRoTL6Vr";
+const portfolio = await solana.portfolio(whaleAddress);
+const totals = await portfolio.total();
+console.log(`Portfolio Value: $${totals.usd}`);
+console.log('Holdings:', portfolio.tokens.map(token => 
+  `${token.amount} ${token.symbol} ($${token.value})`
+));
+
+// Get value in specific token
+const usdcTotals = await portfolio.total(COMMON_TOKENS.USDC);
+console.log(`Value in USDC: ${usdcTotals.token}`);
+
+// Get value from specific DEX
+const jupiterTotals = await portfolio.total(COMMON_TOKENS.USDC, 'jupiter');
+console.log(`Value in USDC (Jupiter): ${jupiterTotals.token}`);
+
+// Wallet operations
+const { wallet } = await solana.createWallet();
+await solana.connect(wallet);
+
+// Send tokens
+const tx = await solana.send({
+  to: whaleAddress,
+  amount: '1.5',        // Send 1.5 USDC
+  token: 'USDC'
+});
+
+// Swap tokens
+const swap = await solana.swap({
+  from: { token: 'SOL', amount: '0.1' },   // Swap 0.1 SOL
+  to: { token: 'USDC' },                   // Get USDC
+  config: { slippage: '1' }                // 1% slippage allowed
+});
+
+// Wait for confirmation
+await tx.confirm();
+```
+
+### Features
+- 🔍 Read-only operations (prices, portfolios, trust scores)
+- 💳 Wallet management (create, connect, save/load)
+- 💸 Token operations (send, swap)
+- 📊 Portfolio tracking
+- 🔒 Trust score analysis
+
+### Examples
+
+```typescript
+// Check portfolio with different price sources
+const portfolio = await solana.portfolio(address);
+
+// Get basic USD value
+const totals = await portfolio.total();
+console.log(`Portfolio Value: $${totals.usd}`);
+console.log(`Value in SOL: ${totals.sol} SOL`);
+
+// Get value in USDC from Jupiter
+const jupiterValue = await portfolio.total(COMMON_TOKENS.USDC, 'jupiter');
+console.log(`Value in USDC (Jupiter): ${jupiterValue.token} USDC`);
+
+// Get value in BONK from Raydium
+const raydiumValue = await portfolio.total('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', 'raydium');
+console.log(`Value in BONK (Raydium): ${raydiumValue.token} BONK`);
+
+// Get value in PumpFun tokens
+const pumpValue = await portfolio.total('YOUR_TOKEN_ADDRESS', 'pumpfun');
+console.log(`Value in Token (PumpFun): ${pumpValue.token}`);
+
+// Get best price across all DEXs
+const bestPrice = await portfolio.total('YOUR_TOKEN_ADDRESS', 'all');
+console.log(`Best value in Token: ${bestPrice.token}`);
+
+// List all holdings with their values
+console.log('Holdings:', portfolio.tokens.map(token => 
+  `${token.amount} ${token.symbol} ($${token.value})`
+));
+
+// Send exact amounts
+const tx = await solana.send({
+  to: friendAddress,
+  amount: '1.5',        // Send exactly 1.5 USDC
+  token: 'USDC'
+});
+
+// Send with USD value
+const tx2 = await solana.send({
+  to: friendAddress,
+  amount: '$100',       // Send $100 worth of SOL
+  token: 'SOL'
+});
+
+// Swap tokens
+const swap = await solana.swap({
+  from: { token: 'SOL', amount: '0.1' },   // Swap from 0.1 SOL
+  to: { token: 'USDC' },                   // Get USDC
+  config: { slippage: '1' }                // 1% slippage allowed
+});
+
+// Wait for confirmation
+await tx.confirm();
+```
