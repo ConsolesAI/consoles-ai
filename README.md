@@ -19,6 +19,69 @@ const consoles = new Consoles(process.env.CONSOLES_API_KEY);
 
 ## Available Products
 
+### Extract
+Transform any content into structured data with AI. Supports text, PDFs, audio, video, and more.
+
+#### Features
+- 🤖 AI-powered extraction (text, PDFs, audio, video)
+- 📝 Schema validation with Zod
+- 🎯 Custom prompts and instructions
+- 🔄 Multiple input formats
+- 📊 Structured data output
+
+#### Basic Example
+```typescript
+import { Consoles } from 'consoles-ai';
+import { z } from 'zod';
+
+// Initialize SDK with your API key
+const consoles = new Consoles('your-api-key');
+
+// Example 1: Simple text extraction with Zod schema
+const productSchema = z.object({
+  name: z.string(),
+  price: z.number(),
+  description: z.string(),
+  inStock: z.boolean().optional(),
+});
+
+const textResult = await consoles.extract({
+  type: 'text',
+  content: `
+    New iPhone 15 Pro
+    Price: $999
+    Experience the most powerful iPhone ever with revolutionary A17 Pro chip.
+    Currently available in all stores.
+  `,
+  schema: productSchema
+});
+
+// Example 2: Process PDF from file
+const fileSchema = z.object({
+  title: z.string(),
+  sections: z.array(z.object({
+    heading: z.string(),
+    content: z.string()
+  })),
+  totalPages: z.number()
+});
+
+const fileResult = await consoles.extract({
+  type: 'file',
+  content: {
+    data: 'base64EncodedFileContent',
+    mimeType: 'application/pdf'
+  },
+  schema: fileSchema,
+  prompt: 'Extract the main sections and content'
+});
+
+// Example 3: Simple string extraction (shorthand)
+const summary = await consoles.extract(
+  'Extract key points from this text...'
+);
+```
+
 ### Web3 
 Blockchain integration for Solana with wallet management, price feeds, and DEX interactions.
 
@@ -147,61 +210,6 @@ const swap = await solana.swap({
 
 // Wait for confirmation
 await tx.confirm();
-```
-
-### Extract
-Transform any content into structured data with AI. Supports text, PDFs, audio, video, and more.
-
-```typescript
-import { Consoles } from 'consoles-ai';
-import { z } from 'zod';
-
-// Initialize SDK with your API key
-const consoles = new Consoles('your-api-key');
-
-// Example 1: Simple text extraction with Zod schema
-const productSchema = z.object({
-  name: z.string(),
-  price: z.number(),
-  description: z.string(),
-  inStock: z.boolean().optional(),
-});
-
-const textResult = await consoles.extract({
-  type: 'text',
-  content: `
-    New iPhone 15 Pro
-    Price: $999
-    Experience the most powerful iPhone ever with revolutionary A17 Pro chip.
-    Currently available in all stores.
-  `,
-  schema: productSchema
-});
-
-// Example 2: Process PDF from file
-const fileSchema = z.object({
-  title: z.string(),
-  sections: z.array(z.object({
-    heading: z.string(),
-    content: z.string()
-  })),
-  totalPages: z.number()
-});
-
-const fileResult = await consoles.extract({
-  type: 'file',
-  content: {
-    data: 'base64EncodedFileContent',
-    mimeType: 'application/pdf'
-  },
-  schema: fileSchema,
-  prompt: 'Extract the main sections and content'
-});
-
-// Example 3: Simple string extraction (shorthand)
-const summary = await consoles.extract(
-  'Extract key points from this text...'
-);
 ```
 
 ## Coming Soon
