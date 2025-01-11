@@ -98,11 +98,13 @@ import { Consoles } from 'consoles-ai';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Initialize SDK with your API key
+// Initialize SDK with your API key 
+// API key is optional and only required for paid features
 const consoles = new Consoles(process.env.CONSOLES_API_KEY);
-// Initialize Solana (defaults to mainnet)
-// to use custom RPC, pass in a custom RPC: consoles.web3.solana({ rpc: 'https://rpc.example.com'} )
 
+// Initialize Solana
+// to use custom RPC, pass in a custom RPC:
+// consoles.web3.solana({ rpc: 'https://rpc.example.com'} )
 const solana = consoles.web3.solana()
 
 // Get token info
