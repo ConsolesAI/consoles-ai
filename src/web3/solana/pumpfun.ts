@@ -162,7 +162,7 @@ export class PumpFunProvider {
       }
 
       return {
-        signature,
+        id: signature,
         async confirm() {
           await connection.confirmTransaction(signature, 'confirmed');
         },
@@ -179,7 +179,7 @@ export class PumpFunProvider {
       const signature = '';
       const connection = this.connection;
       return {
-        signature,
+        id: signature,
         async confirm() {
           await connection.confirmTransaction(signature, 'confirmed');
         },
@@ -230,7 +230,7 @@ export class PumpFunProvider {
       }
 
       return {
-        signature,
+        id: signature,
         async confirm() {
           await connection.confirmTransaction(signature, 'confirmed');
         },
@@ -247,7 +247,7 @@ export class PumpFunProvider {
       const signature = '';
       const connection = this.connection;
       return {
-        signature,
+        id: signature,
         async confirm() {
           await connection.confirmTransaction(signature, 'confirmed');
         },
@@ -297,7 +297,7 @@ export class PumpFunProvider {
       }
 
       return {
-        signature,
+        id: signature,
         async confirm() {
           await connection.confirmTransaction(signature, 'confirmed');
         },
@@ -314,7 +314,7 @@ export class PumpFunProvider {
       const signature = '';
       const connection = this.connection;
       return {
-        signature,
+        id: signature,
         async confirm() {
           await connection.confirmTransaction(signature, 'confirmed');
         },

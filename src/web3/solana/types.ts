@@ -1,8 +1,8 @@
 import { Keypair } from "@solana/web3.js";
-import { TransactionResult as BaseTransactionResult } from '../types';
+import { TransactionResult, BaseTransactionConfig, BaseTransferParams } from '../types';
 
-// Re-export TransactionResult
-export { BaseTransactionResult as TransactionResult };
+// Re-export TransactionResult for backward compatibility
+export { TransactionResult };
 
 /** Supported Solana network types */
 export type SolanaNetwork = 'mainnet-beta' | 'testnet' | 'devnet';
@@ -16,6 +16,20 @@ export const SOLANA_NETWORKS = {
 
 /** Constants for Solana address generation and validation */
 export const SOLANA_BASE58_CHARS = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+
+/** Characters not allowed in Solana addresses (for user reference) */
+export const INVALID_ADDRESS_CHARS = '0OIl';
+
+/** Helper type for valid Base58 characters in vanity patterns */
+export type ValidVanityChar = 
+  | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+  | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' 
+  | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' 
+  | 'W' | 'X' | 'Y' | 'Z'
+  | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' 
+  | 'k' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' 
+  | 'v' | 'w' | 'x' | 'y' | 'z';
+
 /** Length of a base58-encoded Solana public key */
 export const SOLANA_ADDRESS_LENGTH = 44;
 /** Length of a raw Solana public key in bytes */
@@ -78,26 +92,28 @@ export interface TransactionOptions {
 }
 
 /**
- * Solana transaction with confirmation methods
- */
-export interface Transaction {
-  /** Transaction signature (hash) */
-  signature: string;
-  /** Wait for basic confirmation */
-  confirm(options?: TransactionOptions): Promise<void>;
-  /** Wait for specific confirmation level */
-  wait(level: ConfirmationLevel, options?: TransactionOptions): Promise<void>;
-  /** Get current transaction status */
-  status(): Promise<ConfirmationLevel>;
-}
-
-/**
  * Options for creating a vanity wallet address
+ * 
+ * @example
+ * ```typescript
+ * // Valid patterns:
+ * const options: WalletOptions = {
+ *   pattern: 'CAKE',     // Must start with CAKE
+ *   pattern: '*DEAD',    // Must end with DEAD
+ *   pattern: 'ABC*XYZ'   // Must start with ABC and end with XYZ
+ * };
+ * 
+ * // Note: Only these characters are allowed: ${SOLANA_BASE58_CHARS}
+ * // These characters are NOT allowed: ${INVALID_ADDRESS_CHARS}
+ * ```
  */
 export interface WalletOptions {
   /**
    * Pattern for matching Solana addresses (base58 characters only)
-   * Examples:
+   * Only characters in SOLANA_BASE58_CHARS are allowed
+   * Cannot use: 0 (zero), O (capital o), I (capital i), l (lowercase L)
+   * 
+   * Pattern formats:
    * - "CAFE"     -> Must start with CAFE
    * - "*DEAD"    -> Must end with DEAD
    * - "CAFE*XYZ" -> Must start with CAFE and end with XYZ
@@ -146,11 +162,17 @@ export interface WalletResult {
  */
 export type CreateWalletInput = string | WalletOptions;
 
-/** Supported token symbols (extensible) */
-export type TokenSymbol = 'SOL' | 'USDC' | 'BTC' | 'ETH' | string;
+/** Common token addresses for convenience */
+export const COMMON_TOKENS = {
+  SOL: 'So11111111111111111111111111111111111111112',
+  USDC: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
+} as const;
 
-/** Supported DEX platforms */
-export type DEX = 'jupiter' | 'raydium' | 'pumpfun';
+/** Supported token symbols (extensible) */
+export type TokenSymbol = keyof typeof COMMON_TOKENS | string;
+
+/** Supported exchange platforms */
+export type Exchange = 'jupiter' | 'raydium' | 'pumpfun';
 
 /**
  * Token price information from different DEXs
@@ -164,43 +186,62 @@ export interface TokenPrice {
   [key: string]: number | undefined;
 }
 
-/**
- * Parameters for token transfer operation
- */
-export interface TransferParams {
+/** Solana-specific transaction configuration options */
+export interface TransactionConfig extends BaseTransactionConfig {
+  /** Priority fee (in microlamports) */
+  priorityFee?: number;
+  /** Compute unit limit */
+  computeUnits?: number;
+}
+
+/** Parameters for Solana token transfers */
+export interface TransferParams extends BaseTransferParams {
   /** Token to transfer (symbol or mint address) */
   token: TokenSymbol;
-  /** Recipient address */
-  to: string;
-  /** Amount to transfer */
-  amount: string | number;
   /** Source wallet (optional, uses connected wallet if not specified) */
   from?: Keypair;
   /** Optional transaction-specific settings */
+  config?: TransactionConfig;
+}
+
+export interface SwapConfig {
+  /** Slippage tolerance (e.g. "1" for 1%) */
+  slippage?: string;
+  /** Priority fee (in micro-lamports) */
   priorityFee?: number;
+  /** Compute unit limit */
   computeUnits?: number;
-  maxRetries?: number;
+  /** Skip preflight checks */
+  skipPreflight?: boolean;
+  /** Optional RPC override */
+  rpc?: string;
+}
+
+export interface SwapParams {
+  /** Token to swap from */
+  from: { 
+    token: TokenSymbol | string;
+    amount: string;
+  };
+  /** Token to swap to */
+  to: {
+    token: TokenSymbol | string;
+    amount?: string;
+  };
+  /** Optional sender wallet (if different from connected) */
+  wallet?: Keypair;
+  /** Optional transaction config */
+  config?: SwapConfig;
 }
 
 /**
- * Parameters for token swap operation
+ * Token information for swap operations
  */
-export interface SwapParams {
-  /** Source token information */
-  from: { 
-    token: TokenSymbol; 
-    amount: string | number;
-  };
-  /** Target token information */
-  to: { 
-    token: TokenSymbol;
-  };
-  /** Maximum slippage percentage */
-  slippage?: string;
-  /** Optional transaction-specific settings */
-  priorityFee?: number;
-  computeUnits?: number;
-  maxRetries?: number;
+export interface SwapTokenInfo {
+  /** Token symbol (e.g. 'SOL', 'USDC') or mint address */
+  token: TokenSymbol;
+  /** Amount to swap (in token's native units) */
+  amount: string | number;
 }
 
 /**

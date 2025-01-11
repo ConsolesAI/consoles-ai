@@ -65,9 +65,15 @@ export class Web3SDK {
    * });
    * ```
    */
-  solana(config?: SolanaConfig): SolanaAdapter {
+  solana(config?: SolanaConfig | string): SolanaAdapter {
     if (!this._solana) {
-      this._solana = new SolanaAdapter(config);
+      if (typeof config === 'string' && config.startsWith('http')) {
+        // If it's a URL string, use it as custom RPC
+        this._solana = new SolanaAdapter({ network: 'mainnet-beta', rpc: config });
+      } else {
+        // Otherwise use the config or default to mainnet
+        this._solana = new SolanaAdapter(config || 'mainnet-beta');
+      }
     }
     return this._solana;
   }

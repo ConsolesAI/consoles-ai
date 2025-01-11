@@ -1,3 +1,5 @@
+import { PublicKey } from "@solana/web3.js";
+
 /** Supported blockchain networks */
 export type Blockchain = 'solana' | 'ethereum';
 
@@ -20,8 +22,8 @@ export type Blockchain = 'solana' | 'ethereum';
  * ```
  */
 export interface TransactionResult {
-    /** Unique transaction signature/hash */
-    signature: string;
+    /** Unique transaction ID/hash */
+    id: string;
 
     /** 
      * Wait for basic confirmation (chain-specific level)
@@ -101,4 +103,295 @@ export interface BaseChainSDK {
      * @param dex - Optional specific DEX to query
      */
     getPrice(address: string, dex?: string): Promise<any>;
+}
+
+/**
+ * Trust score factors for token evaluation
+ */
+export interface TrustScoreFactors {
+    /** Liquidity depth across DEXs (0-100) */
+    liquidityScore: number;
+    /** Trading volume consistency (0-100) */
+    volumeScore: number;
+    /** Age of token contract (0-100) */
+    ageScore: number;
+    /** Holder distribution score (0-100) */
+    holderScore: number;
+    /** Code audit status (0-100) */
+    auditScore?: number;
+    /** Social metrics score (0-100) */
+    socialScore?: number;
+}
+
+/**
+ * Comprehensive trust score result
+ */
+export interface TrustScoreResult {
+    /** Overall trust score (0-100) */
+    score: number;
+    /** Detailed scoring factors */
+    factors: TrustScoreFactors;
+    /** Risk level assessment */
+    riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'EXTREME';
+    /** Timestamp of evaluation */
+    timestamp: number;
+    /** Optional warning messages */
+    warnings?: string[];
+}
+
+/**
+ * Trust score provider interface
+ */
+export interface TrustScoreProvider {
+    /**
+     * Calculate trust score for a token
+     * @param tokenAddress - Address of token to evaluate
+     * @param chain - Blockchain network
+     */
+    calculateScore(tokenAddress: string, chain: Blockchain): Promise<TrustScoreResult>;
+}
+
+/**
+ * Token performance metrics
+ */
+export interface TokenPerformance {
+    tokenAddress: string;
+    symbol: string;
+    priceChange24h: number;
+    volumeChange24h: number;
+    trade_24h_change: number;
+    liquidity: number;
+    liquidityChange24h: number;
+    holderChange24h: number;
+    rugPull: boolean;
+    isScam: boolean;
+    marketCapChange24h: number;
+    sustainedGrowth: boolean;
+    rapidDump: boolean;
+    suspiciousVolume: boolean;
+    validationTrust: number;
+    balance: number;
+    initialMarketCap: number;
+    lastUpdated: Date;
+}
+
+/**
+ * Recommender metrics for trust scoring
+ */
+export interface RecommenderMetrics {
+    recommenderId: string;
+    trustScore: number;
+    totalRecommendations: number;
+    successfulRecs: number;
+    avgTokenPerformance: number;
+    riskScore: number;
+    consistencyScore: number;
+    virtualConfidence: number;
+    lastActiveDate: Date;
+    trustDecay: number;
+    lastUpdated: Date;
+}
+
+/**
+ * Token recommendation data
+ */
+export interface TokenRecommendation {
+    id: string;
+    recommenderId: string;
+    tokenAddress: string;
+    timestamp: Date;
+    initialMarketCap: number;
+    initialLiquidity: number;
+    initialPrice: number;
+}
+
+/**
+ * Trade performance data
+ */
+export interface TradePerformance {
+    token_address: string;
+    recommender_id: string;
+    buy_price: number;
+    sell_price: number;
+    buy_timeStamp: string;
+    sell_timeStamp: string;
+    buy_amount: number;
+    sell_amount: number;
+    buy_sol: number;
+    received_sol: number;
+    buy_value_usd: number;
+    sell_value_usd: number;
+    profit_usd: number;
+    profit_percent: number;
+    buy_market_cap: number;
+    sell_market_cap: number;
+    market_cap_change: number;
+    buy_liquidity: number;
+    sell_liquidity: number;
+    liquidity_change: number;
+    last_updated: string;
+    rapidDump: boolean;
+}
+
+/**
+ * Token security data
+ */
+export interface TokenSecurityData {
+    ownerBalance: number;
+    creatorBalance: number;
+    ownerPercentage: number;
+    creatorPercentage: number;
+    top10HolderBalance: number;
+    top10HolderPercent: number;
+}
+
+/**
+ * Token recommendation summary
+ */
+export interface TokenRecommendationSummary {
+    tokenAddress: string;
+    averageTrustScore: number;
+    averageRiskScore: number;
+    averageConsistencyScore: number;
+    recommenders: Array<{
+        recommenderId: string;
+        trustScore: number;
+        riskScore: number;
+        consistencyScore: number;
+        recommenderMetrics: RecommenderMetrics;
+    }>;
+}
+
+/**
+ * Portfolio token information
+ */
+export interface PortfolioToken {
+    // Token info
+    address: string;
+    symbol: string;
+    name: string;
+
+    // Balance info
+    /** Raw balance in smallest unit (e.g. lamports) as decimal string */
+    rawBalance: string;
+    /** Token decimals */
+    decimals: number;
+    /** Human readable amount as decimal string */
+    amount: string;
+
+    // Value info
+    /** Current price in USD as decimal string */
+    price: string;
+    /** Total value in USD as decimal string */
+    value: string;
+}
+
+/**
+ * Chain-specific total response
+ */
+export type ChainTotal = {
+    /** Total value in USD as decimal string */
+    usd: string;
+    /** Optional value in requested token */
+    token?: string;
+} & {
+    /** Chain-specific native token values */
+    [key: string]: string | undefined;  // Allow chain-specific tokens (sol, eth) and optional token
+};
+
+/**
+ * DEX source for price/value calculations
+ */
+export type DexSource = 'jupiter' | 'raydium' | 'pumpfun' | 'all';
+
+/**
+ * Complete portfolio information
+ */
+export interface Portfolio {
+    /** 
+     * Get total portfolio value in specified token.
+     * Returns decimal strings to preserve precision (avoid float rounding errors).
+     * Use BigNumber for calculations with these values.
+     * Can fetch prices from DEX if token not in portfolio.
+     * 
+     * @example
+     * ```typescript
+     * // Get basic portfolio value
+     * const totals = await portfolio.total();
+     * 
+     * // Get value in specific token
+     * const inUsdc = await portfolio.total('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');
+     * 
+     * // Get value from specific DEX
+     * const fromJupiter = await portfolio.total('EPjFWdd5...', 'jupiter');
+     * const fromPumpFun = await portfolio.total('8hHCk1x...', 'pumpfun');
+     * ```
+     */
+    total(token?: string, source?: DexSource): Promise<ChainTotal>;
+    /** List of tokens held */
+    tokens: PortfolioToken[];
+    /** Portfolio snapshot timestamp */
+    timestamp: number;
+}
+
+/**
+ * Chain-specific portfolio value response
+ */
+export type ChainPortfolioValue = {
+    /** Total value in USD as decimal string */
+    usd: string;
+} & {
+    /** Chain-specific native token values */
+    [key: string]: string;  // Allow chain-specific native token key (e.g. 'sol', 'eth')
+};
+
+/**
+ * Portfolio configuration options
+ */
+export interface PortfolioConfig {
+    /** Include zero balances */
+    includeZeroBalances?: boolean;
+    /** Minimum USD value to include */
+    minValueUsd?: string;
+    /** Sort options */
+    sort?: {
+        /** Field to sort by */
+        by: 'value' | 'quantity' | 'price' | 'symbol';
+        /** Sort direction */
+        order?: 'asc' | 'desc';
+    };
+}
+
+/**
+ * Portfolio query options
+ */
+export interface PortfolioOptions {
+    /** Address to get portfolio for (optional if wallet connected) */
+    address?: string | PublicKey;
+    /** Portfolio configuration */
+    config?: PortfolioConfig;
+}
+
+/**
+ * Base transaction configuration options
+ */
+export interface BaseTransactionConfig {
+    /** Maximum retry attempts */
+    maxRetries?: number;
+    /** Skip preflight checks */
+    skipPreflight?: boolean;
+    /** Optional RPC endpoint override */
+    rpc?: string;
+}
+
+/**
+ * Base parameters for token transfers
+ */
+export interface BaseTransferParams {
+    /** Recipient address */
+    to: string;
+    /** Amount to transfer */
+    amount: string | number;
+    /** Optional transaction-specific settings */
+    config?: BaseTransactionConfig;
 } 
