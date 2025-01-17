@@ -2,6 +2,35 @@
 
 Simple solutions for powerful features. Built for developers and AI agents.
 
+## Overview
+
+Consoles is a comprehensive development platform that simplifies complex AI and blockchain operations into easy-to-use APIs. Our platform is designed to help developers and AI agents build powerful applications without getting bogged down by implementation details.
+
+### Why Consoles?
+
+- 🚀 **Simplified Complexity** - Complex operations reduced to simple API calls
+- 🔌 **Plug-and-Play Integration** - Start building in minutes with our SDK
+- 🛠️ **Developer First** - Built by developers, for developers
+- 🤖 **AI-Ready** - First-class support for AI agents and automation
+- ⚡ **High Performance** - Optimized for speed and reliability
+- 🔒 **Enterprise Grade** - Production-ready with built-in security features
+
+### Core Products
+
+- **Extract** - AI-powered data extraction from any content type
+- **Web3** - Simplified blockchain operations for Solana
+- **Browsers** (Coming Soon) - Cloud browser automation
+- **Compute** (Coming Soon) - Serverless code execution
+- **Storage** (Coming Soon) - Distributed file storage
+- **Tools** (Coming Soon) - Scalable function deployment
+
+## Getting Started
+
+### Prerequisites
+- Node.js 16+
+- npm or yarn
+- A Consoles API key ([Get one here](https://app.consoles.ai))
+
 ## Installation
 ```bash
 npm install consoles-ai
@@ -216,7 +245,7 @@ await tx.confirm();
 
 ## Coming Soon
 ### Browsers
-Launch and control Chrome or Firefox browsers in the cloud.
+Launch and control Browsers in the cloud.
 
 ### Compute
 Execute code and run containers programmatically
@@ -226,6 +255,25 @@ Fast, affordable storage distributed across the globe
 
 ### Tools Platform
 Deploy tools/functions that scale automatically
+
+## Documentation & Support
+
+### Comprehensive Guides
+- [Getting Started Guide](https://docs.consoles.ai/getting-started)
+- [API Reference](https://docs.consoles.ai)
+
+### Support Channels
+- [Discord Community](https://discord.gg/consoles) - Get help from the community
+- [GitHub Issues](https://github.com/consoles-ai/consoles/issues) - Report bugs and request features
+- [Email Support](mailto:support@consoles.ai) - Premium support for enterprise customers
+
+### Additional Resources
+- [Status Page](https://status.consoles.ai) - System status and uptime
+
+
+## License
+
+Part of this project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Links
 
