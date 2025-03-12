@@ -1,5 +1,5 @@
 import { Web3SDK } from './web3';
-import { extract } from './extract/index';
+import { extract, ExtractError } from './extract/index';
 import type { ExtractInput, ExtractResponse } from './extract/types';
 import { Browser } from './browser';
 import { VM } from './vm';
@@ -115,6 +115,7 @@ export class Consoles implements ConsolesSDK {
    * });
    * ```
    * 
+   * @throws {ExtractError} When extraction fails with specific error details
    * @throws {Error} When API key is not provided
    * @see {@link https://consoles.ai/docs/extract} Documentation
    */
@@ -122,7 +123,18 @@ export class Consoles implements ConsolesSDK {
     if (!this._apiKey) {
       throw new Error('API key required for Extract service. Get one at https://consoles.ai');
     }
-    return extract(this._apiKey, options);
+    
+    try {
+      return await extract(this._apiKey, options);
+    } catch (error) {
+      // Rethrow ExtractError instances directly
+      if (error instanceof ExtractError) {
+        throw error;
+      }
+      
+      // Convert other errors to a generic error
+      throw new Error(error instanceof Error ? error.message : 'Unknown error during extraction');
+    }
   }
 
   /**
@@ -171,3 +183,4 @@ export default Consoles;
 
 // Re-export types
 export type { ExtractInput, ExtractResponse } from './extract/types';
+export { ExtractError } from './extract/index';

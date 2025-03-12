@@ -14,6 +14,16 @@ export interface ExtractResponse {
     status: 'success';
     result: any;
     usage: ExtractUsage;
+    input_type?: 'file' | 'url' | 'text';
+    input_details?: {
+        url?: string;
+        file_name?: string;
+        file_size?: number;
+        mime_type?: string;
+        text_length?: number;
+    };
+    schema?: Record<string, any>;
+    prompt?: string;
 }
 
 /**
@@ -201,7 +211,7 @@ export interface FileExtractOptions extends BaseExtractOptions {
      * - Video: MP4, MOV, AVI, MKV
      * - Images: JPG, PNG, WEBP
      * 
-     * Files are processed in 10MB chunks.
+     * Files are processed in 50MB chunks.
      * @example
      * type: 'file'
      */
