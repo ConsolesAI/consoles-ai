@@ -299,6 +299,7 @@ export default {
         
         // Format and return the result
         const formattedResult = formatResponse(result);
+        // Return the formatted result directly without JSON-RPC wrapper
         return new Response(JSON.stringify(formattedResult), {
           headers: {
             "Content-Type": "application/json",
