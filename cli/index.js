@@ -23,19 +23,18 @@ program
   .description("Setup ConsolesAI 🛠️")
   .action(setupCommand);
 
-program
-  .command("run <script>")
-  .description("Run a script in ConsolesAI cloud environment");
+// program
+//   .command("run <script>")
+//   .description("Run a script in ConsolesAI cloud environment");
+// program
+//   .command("init")
+//   .description("Initialize a new ConsolesAI project")
+//   .action(initCommand);
 
-program
-  .command("init")
-  .description("Initialize a new ConsolesAI project")
-  .action(initCommand);
-
-program
-  .command("deploy [entry_script]")
-  .description("Deploy your project to ConsolesAI cloud")
-  .action(deployCommand);
+// program
+//   .command("deploy [entry_script]")
+//   .description("Deploy your project to ConsolesAI cloud")
+//   .action(deployCommand);
 
 program
   .command('mcp [action]')
@@ -45,12 +44,12 @@ program
     mcpCommand(action, entry_script);
   });
 
-program
-  .command('secrets [action] [space] [key] [value]')
-  .description('Secret Spaces management commands')
-  .action((action, namespace, key, value) => {
-    secretsCommand(action, namespace, key, value);
-  });
+// program
+//   .command('secrets [action] [space] [key] [value]')
+//   .description('Secret Spaces management commands')
+//   .action((action, namespace, key, value) => {
+//     secretsCommand(action, namespace, key, value);
+//   });
 
 program
   .command('help')
