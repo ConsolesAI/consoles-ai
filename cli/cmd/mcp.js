@@ -16,7 +16,7 @@ export const mcpCommand = async (action, entryFile) => {
             message: 'What is the name of your MCP project?',
             validate: input => {
               if (!input) return 'Name is required';
-              if (!/^[a-z0-9-]+$/.test(input)) return 'Name can only contain lowercase letters, numbers, and hyphens';
+              // Allow any characters for display name
               return true;
             }
           },
@@ -28,7 +28,13 @@ export const mcpCommand = async (action, entryFile) => {
           }
         ]);
         
-        await createMCPProject(answers.name, answers.description);
+        // Create sanitized directory name from the display name
+        const dirName = answers.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+        
+        await createMCPProject(dirName, answers.description, answers.name);
         break;
 
       case 'deploy':

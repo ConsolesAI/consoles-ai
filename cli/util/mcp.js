@@ -46,14 +46,14 @@ async function isMCPStyleFile(filePath) {
   }
 }
 
-export async function createMCPProject(name, description) {
+export async function createMCPProject(dirName, description, displayName) {
   const spinner = ora(chalk.blue('Creating MCP project...')).start();
   
   try {
     // Create project directory
-    const projectDir = path.join(process.cwd(), name);
+    const projectDir = path.join(process.cwd(), dirName);
     if (fs.existsSync(projectDir)) {
-      throw new Error(`Directory ${name} already exists`);
+      throw new Error(`Directory ${dirName} already exists`);
     }
     
     fs.mkdirSync(projectDir);
@@ -66,11 +66,17 @@ export async function createMCPProject(name, description) {
       let content = fs.readFileSync(path.join(templateDir, file), 'utf8');
       
       // Replace placeholders
-      content = content.replace(/{{name}}/g, name);
+      content = content.replace(/{{name}}/g, dirName);
       content = content.replace(/{{description}}/g, description);
       
       fs.writeFileSync(path.join(projectDir, file), content);
     }
+
+    // Add display name to index.ts
+    const indexPath = path.join(projectDir, 'index.ts');
+    let indexContent = fs.readFileSync(indexPath, 'utf8');
+    indexContent = `// Name: ${displayName}\n// Description: ${description}\n\n${indexContent}`;
+    fs.writeFileSync(indexPath, indexContent);
 
     // Install dependencies
     spinner.text = chalk.blue('Installing dependencies...');
@@ -78,7 +84,7 @@ export async function createMCPProject(name, description) {
 
     spinner.succeed(chalk.green('MCP project created successfully'));
     console.log(chalk.cyan('\nNext steps:'));
-    console.log(chalk.dim('1.'), 'cd', chalk.yellow(name));
+    console.log(chalk.dim('1.'), 'cd', chalk.yellow(dirName));
     console.log(chalk.dim('2.'), 'Edit', chalk.yellow('index.ts'), 'to implement your tools');
     console.log(chalk.dim('3.'), 'Run', chalk.yellow('consoles-ai mcp deploy'), 'to deploy');
 
