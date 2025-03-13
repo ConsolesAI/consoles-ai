@@ -1,36 +1,25 @@
 // name: {{name}}
 // description: {{description}}
-// version: 1.0
 
 import { z } from 'zod';
 
 // =====================================================
 // DEFINING SCHEMAS
 // =====================================================
-// Define schemas first for cleaner code and better documentation
-// These schemas provide validation and descriptions for the LLM
+// Define your schemas here to validate tool inputs
+// Each schema should describe the parameters your tool accepts
 
-const HelloSchema = z.object({
-  name: z.string().describe('Name to greet')
-}).describe('Greet someone');
-
-const WeatherSchema = z.object({
-  location: z.string().describe('The location to get weather for (city, address, etc.)'),
-  units: z.enum(['metric', 'imperial']).optional().describe('Units to use for temperature (metric = Celsius, imperial = Fahrenheit)')
-}).describe('Get the current weather for a location');
+const ExampleSchema = z.object({
+  message: z.string().describe('A message to echo back')
+}).describe('A simple example tool that echoes back a message');
 
 // =====================================================
-// TOOL IMPLEMENTATIONS
+// TOOL IMPLEMENTATIONS 
 // =====================================================
+// Implement your tools here
+// Each tool should have a schema attached using toolName.schema = SchemaName
 
-// Tool 1: Greet someone
-export async function hello(name: string) {
-  return `Hello, ${name}!`;
+export async function example(message: string) {
+  return `${message}`;
 }
-hello.schema = HelloSchema;
-
-// Tool 2: Get weather
-export async function weather(location: string, units: 'metric' | 'imperial' = 'metric') {
-  return `Getting weather for ${location} in ${units} units...`;
-}
-weather.schema = WeatherSchema; 
+example.schema = ExampleSchema;

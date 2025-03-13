@@ -1,4 +1,3 @@
-import { Web3SDK } from './web3';
 import { extract, ExtractError } from './extract/index';
 import type { ExtractInput, ExtractResponse } from './extract/types';
 import { Browser } from './browser';
@@ -8,16 +7,12 @@ import { ConsolesSDK } from './types';
 
 /**
  * Main entry point for the Consoles SDK.
- * Provides access to various services including Web3, Extract, Browser, VM, and Sandbox.
+ * Provides access to various services including Extract, Browser, VM, and Sandbox.
  * 
  * @example
  * ```typescript
  * // Initialize with API key
  * const consoles = new Consoles('your-api-key');
- * 
- * // Web3 operations (Solana)
- * const solana = consoles.web3.solana('mainnet-beta');
- * const { wallet } = await solana.createWallet();
  * 
  * // Extract structured data
  * const data = await consoles.extract({
@@ -39,7 +34,6 @@ import { ConsolesSDK } from './types';
  */
 export class Consoles implements ConsolesSDK {
   private _apiKey?: string;
-  private _web3?: Web3SDK;
   private _vm?: VM;
   private _sandbox?: Sandbox;
 
@@ -57,41 +51,8 @@ export class Consoles implements ConsolesSDK {
    */
   setApiKey(apiKey: string) {
     this._apiKey = apiKey;
-    // Reset instances so they'll be recreated with new API key
-    this._web3 = undefined;
     this._vm = undefined;
     this._sandbox = undefined;
-  }
-
-  /**
-   * Access Web3 functionality for blockchain operations.
-   * Currently supports Solana with plans for more chains.
-   * 
-   * @example
-   * ```typescript
-   * // Initialize Solana connection
-   * const solana = consoles.web3.solana('mainnet-beta');
-   * 
-   * // Create and connect wallet
-   * const { wallet } = await solana.createWallet();
-   * await solana.connect(wallet);
-   * 
-   * // Transfer SOL
-   * const tx = await solana.transfer({
-   *   token: 'SOL',
-   *   to: recipientAddress,
-   *   amount: '0.1'
-   * });
-   * await tx.confirm();
-   * ```
-   * 
-   * @returns {Web3SDK} Web3 SDK instance for blockchain operations
-   */
-  get web3() {
-    if (!this._web3) {
-      this._web3 = new Web3SDK({ apiKey: this._apiKey });
-    }
-    return this._web3;
   }
 
   /**
