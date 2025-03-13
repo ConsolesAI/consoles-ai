@@ -57,7 +57,7 @@ export const setupCommand = async () => {
       log.info("Generated unique token: 🔑 " + chalk.cyan(token));
       log.info("Press any key to login");
       await waitForKeyPress();
-      await open(`https://consoles.ai/login?token=${token}`);
+      await open(`https://app.consoles.ai/settings/account?link=${token}`);
       log.info("Please complete the process in your browser. 🌍");
       apiKey = await retrieveApiKey(token);
   
@@ -65,17 +65,11 @@ export const setupCommand = async () => {
       if (token && apiKey) {
         await saveEnvFile(envPath, token, apiKey);
         log.success("ConsolesAI setup completed. ✅");
-        log.info(
-          "Use 'consoles-ai init' to start your first project or use 'consoles-ai run <script.name>'"
-        );
       } else {
         log.error("Failed to retrieve token or API key.");
       }
     }
   } else {
     log.success("ConsolesAI setup completed. ✅");
-    log.info(
-      "Use 'consoles-ai init' to start your first project or use 'consoles-ai run <script.name>'"
-    );
   }
 };

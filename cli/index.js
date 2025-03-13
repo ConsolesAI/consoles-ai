@@ -3,7 +3,7 @@
 import { Command } from "commander";
 import { setupCommand } from "./cmd/setup.js";
 import { deployCommand } from "./cmd/deploy.js";
-import { kvCommand } from "./cmd/kv.js";
+import { mcpCommand } from "./cmd/mcp.js";
 import { initCommand } from "./cmd/init.js";
 import { secretsCommand } from "./cmd/env.js";
 import { readFileSync } from 'fs';
@@ -38,10 +38,11 @@ program
   .action(deployCommand);
 
 program
-  .command('kv [action] [namespace] [key] [value]')
-  .description('Key-Value store commands')
-  .action((action, namespace, key, value) => {
-    kvCommand(action, namespace, key, value);
+  .command('mcp [action]')
+  .description('Multi-Cloud Provider commands (init|deploy|delete)')
+  .argument('[entry_script]', 'Entry script for deployment (defaults to index.ts)')
+  .action((action, entry_script) => {
+    mcpCommand(action, entry_script);
   });
 
 program
