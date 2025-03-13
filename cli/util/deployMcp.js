@@ -154,10 +154,12 @@ function getJsonSchemaType(zodSchema) {
 
 // Response formatting helper
 function formatResponse(result) {
+  // If result is already in the correct format with content array, return it as is
   if (result && typeof result === 'object' && Array.isArray(result.content)) {
     return result;
   }
   
+  // If result is a string, format it into the content array structure
   if (typeof result === 'string') {
     return {
       content: [{ type: "text", text: result }]
@@ -167,6 +169,7 @@ function formatResponse(result) {
       content: [{ type: "text", text: "Operation completed successfully" }]
     };
   } else {
+    // For other types, convert to string and format
     return {
       content: [{ type: "text", text: JSON.stringify(result) }]
     };
@@ -296,11 +299,7 @@ export default {
         
         // Format and return the result
         const formattedResult = formatResponse(result);
-        return new Response(JSON.stringify({
-          jsonrpc: "2.0",
-          id: body.message?.id,
-          result: formattedResult
-        }), {
+        return new Response(JSON.stringify(formattedResult), {
           headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*"
@@ -308,12 +307,7 @@ export default {
         });
       } catch (error) {
         return new Response(JSON.stringify({
-          jsonrpc: "2.0",
-          id: body.message?.id,
-          error: {
-            code: -32000,
-            message: error.message || 'An error occurred during execution'
-          }
+          error: error.message || 'An error occurred during execution'
         }), {
           status: 500,
           headers: {
