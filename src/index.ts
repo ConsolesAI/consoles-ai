@@ -3,7 +3,7 @@ import type { ExtractInput, ExtractResponse } from './extract/types';
 import { Browser } from './browser';
 import { VM } from './vm';
 import { Sandbox } from './sandbox';
-import { MCP } from './mcp';
+import MCP from './mcp';
 import { ConsolesSDK } from './types';
 
 /**
@@ -157,3 +157,4 @@ export default Consoles;
 // Re-export types
 export type { ExtractInput, ExtractResponse } from './extract/types';
 export { ExtractError } from './extract/index';
+export { MCP };
