@@ -1,42 +1,12 @@
 import { extract, ExtractError } from './extract/index';
 import type { ExtractInput, ExtractResponse } from './extract/types';
-import { Browser } from './browser';
-import { VM } from './vm';
-import { Sandbox } from './sandbox';
+
 import MCP from './mcp';
 import { ConsolesSDK } from './types';
 
-/**
- * Main entry point for the Consoles SDK.
- * Provides access to various services including Extract, Browser, VM, and Sandbox.
- * 
- * @example
- * ```typescript
- * // Initialize with API key
- * const consoles = new Consoles('your-api-key');
- * 
- * // Extract structured data
- * const data = await consoles.extract({
- *   type: 'url',
- *   content: 'https://example.com',
- *   schema: { type: 'object', properties: { title: { type: 'string' } } }
- * });
- * 
- * // Browser automation
- * const browser = consoles.browser('profile1');
- * await browser.launch();
- * 
- * // VM operations
- * const vm = consoles.vm;
- * 
- * // Sandbox environment
- * const sandbox = consoles.sandbox;
- * ```
- */
+
 export class Consoles implements ConsolesSDK {
   private _apiKey?: string;
-  private _vm?: VM;
-  private _sandbox?: Sandbox;
 
   /**
    * Create a new Consoles SDK instance
@@ -52,8 +22,6 @@ export class Consoles implements ConsolesSDK {
    */
   setApiKey(apiKey: string) {
     this._apiKey = apiKey;
-    this._vm = undefined;
-    this._sandbox = undefined;
   }
 
   /**
@@ -108,47 +76,6 @@ export class Consoles implements ConsolesSDK {
    */
   mcp(name: string, version: string, description?: string) {
     return new MCP({ name, version, description });
-  }
-  
-  /**
-   * Create a browser automation session.
-   * @param profile - Profile name for session persistence
-   * @returns Browser instance for automation
-   * @throws {Error} When API key is not provided
-   */
-  browser(profile: string) {
-    if (!this._apiKey) {
-      throw new Error('API key required for Browser service. Get one at https://consoles.ai');
-    }
-    return new Browser(profile, { apiKey: this._apiKey });
-  }
-
-  /**
-   * Access VM functionality for cloud compute operations.
-   * @throws {Error} When API key is not provided
-   */
-  get vm() {
-    if (!this._vm) {
-      if (!this._apiKey) {
-        throw new Error('API key required for VM service. Get one at https://consoles.ai');
-      }
-      this._vm = new VM({ apiKey: this._apiKey });
-    }
-    return this._vm;
-  }
-
-  /**
-   * Access Sandbox functionality for isolated environments.
-   * @throws {Error} When API key is not provided
-   */
-  get sandbox() {
-    if (!this._sandbox) {
-      if (!this._apiKey) {
-        throw new Error('API key required for Sandbox service. Get one at https://consoles.ai');
-      }
-      this._sandbox = new Sandbox({ apiKey: this._apiKey });
-    }
-    return this._sandbox;
   }
 }
 
