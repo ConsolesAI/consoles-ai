@@ -154,12 +154,10 @@ function getJsonSchemaType(zodSchema) {
 
 // Response formatting helper
 function formatResponse(result) {
-  // If result is already in the correct format with content array, return it as is
   if (result && typeof result === 'object' && Array.isArray(result.content)) {
     return result;
   }
   
-  // If result is a string, format it into the content array structure
   if (typeof result === 'string') {
     return {
       content: [{ type: "text", text: result }]
@@ -169,7 +167,6 @@ function formatResponse(result) {
       content: [{ type: "text", text: "Operation completed successfully" }]
     };
   } else {
-    // For other types, convert to string and format
     return {
       content: [{ type: "text", text: JSON.stringify(result) }]
     };
@@ -257,9 +254,9 @@ export default {
         
         // Execute the function with validation if schema exists
         let result;
-        try {
+        if (func.schema) {
           // For functions with zod schemas
-          if (func.schema) {
+          try {
             // Extract and validate arguments based on schema
             const schema = func.schema;
             const validatedArgs = schema.parse(toolArgs);
@@ -281,40 +278,42 @@ export default {
               // For non-object schemas, pass the entire validated value
               result = await func(validatedArgs);
             }
-          } else {
-            // For functions without schemas
-            result = await func(toolArgs);
+          } catch (validationError) {
+            return new Response(JSON.stringify({
+              error: \`Validation error: \${validationError.message}\`
+            }), { 
+              status: 400,
+              headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"
+              }
+            });
           }
-          
-          // Format the result if needed
-          const formattedResult = formatResponse(result);
-          
-          // Log the result for debugging
-          console.log('Tool execution result:', JSON.stringify(formattedResult));
-          
-          // Return the formatted result directly
-          return new Response(JSON.stringify(formattedResult), {
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": "*"
-            }
-          });
-        } catch (execError) {
-          console.error('Tool execution error:', execError);
-          return new Response(JSON.stringify({
-            error: execError.message || 'An error occurred during tool execution'
-          }), {
-            status: 500,
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": "*"
-            }
-          });
+        } else {
+          // For functions without schemas
+          result = await func(toolArgs);
         }
-      } catch (error) {
-        console.error('Request processing error:', error);
+        
+        // Format and return the result
+        const formattedResult = formatResponse(result);
         return new Response(JSON.stringify({
-          error: error.message || 'An error occurred during execution'
+          jsonrpc: "2.0",
+          id: body.message?.id,
+          result: formattedResult
+        }), {
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+          }
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({
+          jsonrpc: "2.0",
+          id: body.message?.id,
+          error: {
+            code: -32000,
+            message: error.message || 'An error occurred during execution'
+          }
         }), {
           status: 500,
           headers: {
