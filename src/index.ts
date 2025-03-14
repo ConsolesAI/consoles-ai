@@ -3,6 +3,7 @@ import type { ExtractInput, ExtractResponse } from './extract/types';
 import { Browser } from './browser';
 import { VM } from './vm';
 import { Sandbox } from './sandbox';
+import { MCP } from './mcp';
 import { ConsolesSDK } from './types';
 
 /**
@@ -98,6 +99,17 @@ export class Consoles implements ConsolesSDK {
     }
   }
 
+  /**
+   * Create a new MCP instance.
+   * @param name - Name of the MCP instance 
+   * @param version - Version of the MCP instance
+   * @returns MCP instance
+   * @throws {Error} When API key is not provided
+   */
+  mcp(name: string, version: string) {
+    return new MCP({ name, version});
+  }
+  
   /**
    * Create a browser automation session.
    * @param profile - Profile name for session persistence
