@@ -257,9 +257,9 @@ export default {
         
         // Execute the function with validation if schema exists
         let result;
-        if (func.schema) {
+        try {
           // For functions with zod schemas
-          try {
+          if (func.schema) {
             // Extract and validate arguments based on schema
             const schema = func.schema;
             const validatedArgs = schema.parse(toolArgs);
@@ -281,32 +281,38 @@ export default {
               // For non-object schemas, pass the entire validated value
               result = await func(validatedArgs);
             }
-          } catch (validationError) {
-            return new Response(JSON.stringify({
-              error: \`Validation error: \${validationError.message}\`
-            }), { 
-              status: 400,
-              headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
-              }
-            });
+          } else {
+            // For functions without schemas
+            result = await func(toolArgs);
           }
-        } else {
-          // For functions without schemas
-          result = await func(toolArgs);
+          
+          // Format and return the result
+          const formattedResult = formatResponse(result);
+          
+          // Log the result for debugging
+          console.log('Tool execution result:', JSON.stringify(formattedResult));
+          
+          // Return the formatted result directly without JSON-RPC wrapper
+          return new Response(JSON.stringify(formattedResult), {
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*"
+            }
+          });
+        } catch (execError) {
+          console.error('Tool execution error:', execError);
+          return new Response(JSON.stringify({
+            error: execError.message || 'An error occurred during tool execution'
+          }), {
+            status: 500,
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*"
+            }
+          });
         }
-        
-        // Format and return the result
-        const formattedResult = formatResponse(result);
-        // Return the formatted result directly without JSON-RPC wrapper
-        return new Response(JSON.stringify(formattedResult), {
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*"
-          }
-        });
       } catch (error) {
+        console.error('Request processing error:', error);
         return new Response(JSON.stringify({
           error: error.message || 'An error occurred during execution'
         }), {
