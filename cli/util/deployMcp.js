@@ -286,13 +286,13 @@ export default {
             result = await func(toolArgs);
           }
           
-          // Format and return the result
+          // Format the result if needed
           const formattedResult = formatResponse(result);
           
           // Log the result for debugging
           console.log('Tool execution result:', JSON.stringify(formattedResult));
           
-          // Return the formatted result directly without JSON-RPC wrapper
+          // Return the formatted result directly
           return new Response(JSON.stringify(formattedResult), {
             headers: {
               "Content-Type": "application/json",
