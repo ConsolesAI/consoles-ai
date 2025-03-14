@@ -14,11 +14,12 @@ export class MCP {
 	#app: Hono;
 	McpObject: any;
 
-	constructor(config: { name: string; version: string }) {
+	constructor(config: { name: string; version: string; description?: string }) {
 		// Initialize the MCP server
 		this.#server = new McpServer({
 			name: config.name,
 			version: config.version,
+			description: config.description,
 			capabilities: {
 				prompts: {},
 				tools: {},

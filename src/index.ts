@@ -103,10 +103,11 @@ export class Consoles implements ConsolesSDK {
    * Create a new MCP instance.
    * @param name - Name of the MCP instance 
    * @param version - Version of the MCP instance
+   * @param description - Optional description of the MCP instance
    * @returns MCP instance
    */
-  mcp(name: string, version: string) {
-    return new MCP({ name, version });
+  mcp(name: string, version: string, description?: string) {
+    return new MCP({ name, version, description });
   }
   
   /**
