@@ -104,10 +104,9 @@ export class Consoles implements ConsolesSDK {
    * @param name - Name of the MCP instance 
    * @param version - Version of the MCP instance
    * @returns MCP instance
-   * @throws {Error} When API key is not provided
    */
   mcp(name: string, version: string) {
-    return new MCP({ name, version});
+    return new MCP({ name, version });
   }
   
   /**
